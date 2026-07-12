@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Create Account — MediCore HMS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="auth-shell">
+  <div class="auth-visual">
+    <a href="index.html" class="brand">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M12 21s-7-4.35-9.5-8.5C.5 8.5 3 4 7 4c2 0 3.5 1 5 3 1.5-2 3-3 5-3 4 0 6.5 4.5 4.5 8.5C19 16.65 12 21 12 21z"/></svg>
+      MediCore
+    </a>
+    <div>
+      <p class="quote">"Set up in minutes. Patients can book their first appointment the same day."</p>
+      <small>Free for patients — always</small>
+    </div>
+  </div>
+
+  <div class="auth-form-side">
+    <div class="auth-card">
+      <h1>Create your account</h1>
+      <p class="sub">Patients can self-register below. Staff and doctor accounts should also register here, then have an admin verify their role.</p>
+
+      <form id="register-form" novalidate>
+        <div class="field" id="f-name">
+          <label for="name">Full name</label>
+          <input type="text" id="name" placeholder="Jordan Lee">
+          <div class="error-text">Please enter your name.</div>
+        </div>
+        <div class="field" id="f-email">
+          <label for="email">Email</label>
+          <input type="email" id="email" placeholder="you@example.com">
+          <div class="error-text">Please enter a valid email.</div>
+        </div>
+        <div class="field" id="f-password">
+          <label for="password">Password</label>
+          <input type="password" id="password" placeholder="At least 6 characters">
+          <div class="error-text">Password must be at least 6 characters.</div>
+        </div>
+        <div class="field" id="f-role">
+          <label for="role">I am a...</label>
+          <select id="role">
+            <option value="PATIENT">Patient</option>
+            <option value="DOCTOR">Doctor</option>
+            <option value="BILLING_STAFF">Billing Staff</option>
+            <option value="ADMIN">Admin</option>
+          </select>
+        </div>
+
+        <div id="patient-fields">
+          <div class="field-row">
+            <div class="field" id="f-age">
+              <label for="age">Age</label>
+              <input type="number" id="age" min="0" placeholder="32">
+            </div>
+            <div class="field" id="f-disease">
+              <label for="disease">Reason for visit</label>
+              <input type="text" id="disease" placeholder="Optional">
+            </div>
+          </div>
+        </div>
+
+        <div id="doctor-fields" style="display:none;">
+          <div class="field" id="f-specialization">
+            <label for="specialization">Specialization</label>
+            <input type="text" id="specialization" placeholder="e.g. Cardiology">
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block" id="register-btn">
+          <span id="register-btn-text">Create Account</span>
+        </button>
+      </form>
+
+      <p class="form-foot">Already have an account? <a href="login.html">Log in</a></p>
+    </div>
+  </div>
+</div>
+
+<script src="js/script.js"></script>
+<script>
+if (Auth.isLoggedIn()) Auth.redirectToDashboard();
+
+const roleSelect = document.getElementById("role");
+roleSelect.addEventListener("change", () => {
+  document.getElementById("patient-fields").style.display = roleSelect.value === "PATIENT" ? "block" : "none";
+  document.getElementById("doctor-fields").style.display = roleSelect.value === "DOCTOR" ? "block" : "none";
+});
+
+document.getElementById("register-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const form = e.target;
+  clearAllErrors(form);
+  let valid = true;
+
+  const name = document.getElementById("name").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value;
+  const role = roleSelect.value;
+
+  if (!name) { showFieldError(document.getElementById("f-name"), "Please enter your name."); valid = false; }
+  if (!/^\S+@\S+\.\S+$/.test(email)) { showFieldError(document.getElementById("f-email"), "Please enter a valid email."); valid = false; }
+  if (password.length < 6) { showFieldError(document.getElementById("f-password"), "Password must be at least 6 characters."); valid = false; }
+  if (!valid) return;
+
+  const payload = { name, email, password, role };
+  if (role === "PATIENT") {
+    const age = document.getElementById("age").value;
+    payload.age = age ? Number(age) : null;
+    payload.disease = document.getElementById("disease").value.trim() || null;
+  }
+  if (role === "DOCTOR") {
+    payload.specialization = document.getElementById("specialization").value.trim() || "General Medicine";
+  }
+
+  const btn = document.getElementById("register-btn");
+  const btnText = document.getElementById("register-btn-text");
+  btn.disabled = true;
+  btnText.innerHTML = '<span class="spinner"></span>';
+
+  try {
+    const res = await api("/auth/register", { method: "POST", body: payload, auth: false });
+    Auth.setSession(res);
+    toast(`Account created! Welcome, ${res.name.split(" ")[0]}.`, "success");
+    setTimeout(() => Auth.redirectToDashboard(), 500);
+  } catch (err) {
+    toast(err.message, "error");
+    btn.disabled = false;
+    btnText.textContent = "Create Account";
+  }
+});
+</script>
+</body>
+</html>

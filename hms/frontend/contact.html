@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contact — MediCore HMS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<nav class="public-nav">
+  <div class="container">
+    <a href="index.html" class="brand">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#2c7be5" stroke-width="2"><path d="M12 21s-7-4.35-9.5-8.5C.5 8.5 3 4 7 4c2 0 3.5 1 5 3 1.5-2 3-3 5-3 4 0 6.5 4.5 4.5 8.5C19 16.65 12 21 12 21z"/><path d="M8 12h2l1.5-3L13 15l1.5-3H16" stroke="#00b894"/></svg>
+      MediCore
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="services.html">Services</a></li>
+      <li><a href="contact.html" class="active">Contact</a></li>
+    </ul>
+    <div class="nav-actions">
+      <a href="login.html" class="btn btn-outline btn-sm">Log in</a>
+      <a href="register.html" class="btn btn-primary btn-sm">Get Started</a>
+      <button class="nav-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+  </div>
+</nav>
+
+<div class="page-hero-simple container">
+  <span class="eyebrow">Contact</span>
+  <h1>Talk to the front desk</h1>
+  <p class="lead" style="max-width:60ch;margin:0 auto;">Questions about a visit, a bill, or getting your clinic set up on MediCore — reach out below.</p>
+</div>
+
+<section class="section">
+  <div class="container contact-grid">
+    <div>
+      <div class="panel">
+        <div class="panel-head"><h2>Send a message</h2></div>
+        <form id="contact-form" novalidate>
+          <div class="field" id="f-name">
+            <label for="c-name">Full name</label>
+            <input type="text" id="c-name" placeholder="Jordan Lee">
+            <div class="error-text">Please enter your name.</div>
+          </div>
+          <div class="field" id="f-email">
+            <label for="c-email">Email</label>
+            <input type="email" id="c-email" placeholder="you@example.com">
+            <div class="error-text">Please enter a valid email.</div>
+          </div>
+          <div class="field" id="f-subject">
+            <label for="c-subject">Subject</label>
+            <input type="text" id="c-subject" placeholder="Appointment question">
+            <div class="error-text">Please add a subject.</div>
+          </div>
+          <div class="field" id="f-message">
+            <label for="c-message">Message</label>
+            <textarea id="c-message" rows="5" placeholder="How can we help?"></textarea>
+            <div class="error-text">Please write a short message.</div>
+          </div>
+          <button type="submit" class="btn btn-primary btn-block">Send Message</button>
+        </form>
+      </div>
+    </div>
+    <div>
+      <div class="panel">
+        <h2 style="margin-bottom:16px;">Reach us directly</h2>
+        <p><strong>Front desk:</strong> (555) 019-2831</p>
+        <p><strong>Emergency line:</strong> (555) 019-9110 (24/7)</p>
+        <p><strong>Email:</strong> care@medicore-hms.example</p>
+        <p><strong>Address:</strong> 482 Wellness Ave, Suite 200</p>
+      </div>
+      <div class="panel">
+        <h2 style="margin-bottom:10px;">Office hours</h2>
+        <p>Mon – Fri: 7:00 AM – 8:00 PM<br>Sat – Sun: 8:00 AM – 4:00 PM<br>Emergency desk: Always open</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="container">
+    <small>&copy; 2026 MediCore HMS. Built for modern healthcare teams.</small>
+    <ul class="footer-links">
+      <li><a href="about.html">About</a></li>
+      <li><a href="services.html">Services</a></li>
+      <li><a href="contact.html">Contact</a></li>
+    </ul>
+  </div>
+</footer>
+
+<script src="js/script.js"></script>
+<script>
+document.getElementById("contact-form").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const form = e.target;
+  clearAllErrors(form);
+  let valid = true;
+
+  const name = document.getElementById("c-name").value.trim();
+  const email = document.getElementById("c-email").value.trim();
+  const subject = document.getElementById("c-subject").value.trim();
+  const message = document.getElementById("c-message").value.trim();
+
+  if (!name) { showFieldError(document.getElementById("f-name"), "Please enter your name."); valid = false; }
+  if (!/^\S+@\S+\.\S+$/.test(email)) { showFieldError(document.getElementById("f-email"), "Please enter a valid email."); valid = false; }
+  if (!subject) { showFieldError(document.getElementById("f-subject"), "Please add a subject."); valid = false; }
+  if (!message) { showFieldError(document.getElementById("f-message"), "Please write a short message."); valid = false; }
+
+  if (!valid) return;
+
+  // No backend endpoint for the contact form in this build — acknowledge locally.
+  toast("Message sent! Our front desk will reply within one business day.", "success");
+  form.reset();
+});
+</script>
+</body>
+</html>

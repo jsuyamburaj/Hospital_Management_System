@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Doctors — MediCore HMS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="app-shell">
+  <aside class="sidebar">
+    <a href="admin.html" class="brand">
+      <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#2c7be5" stroke-width="2"><path d="M12 21s-7-4.35-9.5-8.5C.5 8.5 3 4 7 4c2 0 3.5 1 5 3 1.5-2 3-3 5-3 4 0 6.5 4.5 4.5 8.5C19 16.65 12 21 12 21z"/></svg>
+      MediCore
+    </a>
+    <ul class="side-nav">
+      <li><a href="admin.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg> Dashboard</a></li>
+      <li><a href="patients.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg> Patients</a></li>
+      <li><a href="doctors.html" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg> Doctors</a></li>
+      <li><a href="appointments.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg> Appointments</a></li>
+      <li><a href="billing.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg> Billing</a></li>
+      <li><a href="reports.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 17V9M13 17V5M8 17v-4"/></svg> Reports</a></li>
+      <li><a href="profile.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg> Profile</a></li>
+    </ul>
+    <div class="sidebar-foot">
+      <div class="user-chip" id="user-chip"></div>
+      <a href="#" class="btn btn-ghost btn-sm btn-block logout-btn" style="margin-top:8px;justify-content:flex-start;">Log out</a>
+    </div>
+  </aside>
+
+  <div class="main-col">
+    <div class="topbar">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <button class="sidebar-toggle">☰</button>
+        <h1>Doctors</h1>
+      </div>
+      <button class="dark-toggle" aria-label="Toggle dark mode">🌙</button>
+    </div>
+
+    <div class="page-body">
+      <div class="panel">
+        <div class="panel-head">
+          <h2>All doctors</h2>
+          <button class="btn btn-primary btn-sm" id="add-doctor-btn">+ Add Doctor</button>
+        </div>
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead><tr><th>Name</th><th>Specialization</th><th>Email</th><th>Phone</th><th></th></tr></thead>
+            <tbody id="doctors-body">
+              <tr><td colspan="5"><div class="skeleton skel-row"></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="doctor-modal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="doctor-modal-title">Add Doctor</h3>
+      <button class="modal-close" data-close-modal="doctor-modal">&times;</button>
+    </div>
+    <form id="doctor-form">
+      <input type="hidden" id="doctor-id">
+      <div class="field" id="f-d-name">
+        <label for="d-name">Full name</label>
+        <input type="text" id="d-name" placeholder="Dr. Amara Osei">
+        <div class="error-text">Name is required.</div>
+      </div>
+      <div class="field" id="f-d-spec">
+        <label for="d-spec">Specialization</label>
+        <input type="text" id="d-spec" placeholder="e.g. Cardiology">
+        <div class="error-text">Specialization is required.</div>
+      </div>
+      <div class="field-row">
+        <div class="field" id="f-d-email">
+          <label for="d-email">Email</label>
+          <input type="email" id="d-email" placeholder="Optional">
+        </div>
+        <div class="field" id="f-d-phone">
+          <label for="d-phone">Phone</label>
+          <input type="text" id="d-phone" placeholder="Optional">
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block" id="doctor-save-btn">Save Doctor</button>
+    </form>
+  </div>
+</div>
+
+<script src="js/script.js"></script>
+<script>
+const user = Auth.requireRole(["ADMIN"]);
+let allDoctors = [];
+
+if (user) {
+  renderUserChip();
+  loadDoctors();
+}
+
+async function loadDoctors() {
+  try {
+    allDoctors = await api("/doctors");
+    renderDoctors(allDoctors);
+  } catch (err) {
+    toast(err.message, "error");
+  }
+}
+
+function renderDoctors(list) {
+  const body = document.getElementById("doctors-body");
+  if (list.length === 0) {
+    body.innerHTML = `<tr class="empty-row"><td colspan="5">No doctors added yet.</td></tr>`;
+    return;
+  }
+  body.innerHTML = list.map(d => `<tr>
+      <td>${escapeHtml(d.name)}</td>
+      <td><span class="badge badge-blue">${escapeHtml(d.specialization)}</span></td>
+      <td>${d.email ? escapeHtml(d.email) : "—"}</td>
+      <td>${d.phone ? escapeHtml(d.phone) : "—"}</td>
+      <td>
+        <div class="row-actions">
+          <button class="icon-btn" onclick="editDoctor(${d.id})" aria-label="Edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></button>
+          <button class="icon-btn danger" onclick="deleteDoctor(${d.id})" aria-label="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6h14z"/></svg></button>
+        </div>
+      </td>
+    </tr>`).join("");
+}
+
+document.getElementById("add-doctor-btn").addEventListener("click", () => {
+  document.getElementById("doctor-form").reset();
+  document.getElementById("doctor-id").value = "";
+  document.getElementById("doctor-modal-title").textContent = "Add Doctor";
+  clearAllErrors(document.getElementById("doctor-form"));
+  openModal("doctor-modal");
+});
+
+function editDoctor(id) {
+  const d = allDoctors.find(x => x.id === id);
+  if (!d) return;
+  document.getElementById("doctor-id").value = d.id;
+  document.getElementById("d-name").value = d.name || "";
+  document.getElementById("d-spec").value = d.specialization || "";
+  document.getElementById("d-email").value = d.email || "";
+  document.getElementById("d-phone").value = d.phone || "";
+  document.getElementById("doctor-modal-title").textContent = "Edit Doctor";
+  clearAllErrors(document.getElementById("doctor-form"));
+  openModal("doctor-modal");
+}
+
+async function deleteDoctor(id) {
+  if (!confirm("Remove this doctor? This cannot be undone.")) return;
+  try {
+    await api(`/doctors/${id}`, { method: "DELETE" });
+    toast("Doctor removed.", "success");
+    loadDoctors();
+  } catch (err) {
+    toast(err.message, "error");
+  }
+}
+
+document.getElementById("doctor-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  clearAllErrors(e.target);
+
+  const name = document.getElementById("d-name").value.trim();
+  const specialization = document.getElementById("d-spec").value.trim();
+  let valid = true;
+  if (!name) { showFieldError(document.getElementById("f-d-name"), "Name is required."); valid = false; }
+  if (!specialization) { showFieldError(document.getElementById("f-d-spec"), "Specialization is required."); valid = false; }
+  if (!valid) return;
+
+  const id = document.getElementById("doctor-id").value;
+  const payload = {
+    name, specialization,
+    email: document.getElementById("d-email").value.trim() || null,
+    phone: document.getElementById("d-phone").value.trim() || null
+  };
+
+  const btn = document.getElementById("doctor-save-btn");
+  btn.disabled = true;
+  try {
+    if (id) {
+      await api(`/doctors/${id}`, { method: "PUT", body: payload });
+      toast("Doctor updated.", "success");
+    } else {
+      await api("/doctors", { method: "POST", body: payload });
+      toast("Doctor added.", "success");
+    }
+    closeModal("doctor-modal");
+    loadDoctors();
+  } catch (err) {
+    toast(err.message, "error");
+  } finally {
+    btn.disabled = false;
+  }
+});
+</script>
+</body>
+</html>

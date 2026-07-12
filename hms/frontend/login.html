@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Log In — MediCore HMS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="auth-shell">
+  <div class="auth-visual">
+    <a href="index.html" class="brand">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M12 21s-7-4.35-9.5-8.5C.5 8.5 3 4 7 4c2 0 3.5 1 5 3 1.5-2 3-3 5-3 4 0 6.5 4.5 4.5 8.5C19 16.65 12 21 12 21z"/></svg>
+      MediCore
+    </a>
+    <div>
+      <p class="quote">"Every patient, doctor, and invoice — visible the moment you log in."</p>
+      <small>Trusted by front desks at 40+ clinics</small>
+    </div>
+  </div>
+
+  <div class="auth-form-side">
+    <div class="auth-card">
+      <h1>Welcome back</h1>
+      <p class="sub">Log in to reach your dashboard.</p>
+
+      <form id="login-form" novalidate>
+        <div class="field" id="f-email">
+          <label for="email">Email</label>
+          <input type="email" id="email" placeholder="you@example.com" autocomplete="username">
+          <div class="error-text">Please enter a valid email.</div>
+        </div>
+        <div class="field" id="f-password">
+          <label for="password">Password</label>
+          <input type="password" id="password" placeholder="••••••••" autocomplete="current-password">
+          <div class="error-text">Please enter your password.</div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block" id="login-btn">
+          <span id="login-btn-text">Log In</span>
+        </button>
+      </form>
+
+      <p class="form-foot">Don't have an account? <a href="register.html">Create one</a></p>
+      <p class="form-foot" style="margin-top:6px;font-size:0.8rem;">Demo admin: admin@hms.com / Admin@123</p>
+    </div>
+  </div>
+</div>
+
+<script src="js/script.js"></script>
+<script>
+if (Auth.isLoggedIn()) Auth.redirectToDashboard();
+
+document.getElementById("login-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const form = e.target;
+  clearAllErrors(form);
+  let valid = true;
+
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value;
+
+  if (!/^\S+@\S+\.\S+$/.test(email)) { showFieldError(document.getElementById("f-email"), "Please enter a valid email."); valid = false; }
+  if (!password) { showFieldError(document.getElementById("f-password"), "Please enter your password."); valid = false; }
+  if (!valid) return;
+
+  const btn = document.getElementById("login-btn");
+  const btnText = document.getElementById("login-btn-text");
+  btn.disabled = true;
+  btnText.innerHTML = '<span class="spinner"></span>';
+
+  try {
+    const res = await api("/auth/login", { method: "POST", body: { email, password }, auth: false });
+    Auth.setSession(res);
+    toast(`Welcome back, ${res.name.split(" ")[0]}!`, "success");
+    setTimeout(() => Auth.redirectToDashboard(), 500);
+  } catch (err) {
+    toast(err.message, "error");
+    btn.disabled = false;
+    btnText.textContent = "Log In";
+  }
+});
+</script>
+</body>
+</html>
