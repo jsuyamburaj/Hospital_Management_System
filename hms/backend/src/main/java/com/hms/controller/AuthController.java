@@ -1,6 +1,8 @@
 package com.hms.controller;
 
 import com.hms.dto.AuthResponse;
+import com.hms.dto.ForgotPasswordRequest;
+import com.hms.dto.ForgotPasswordResponse;
 import com.hms.dto.LoginRequest;
 import com.hms.dto.RegisterRequest;
 import com.hms.service.AuthService;
@@ -24,5 +26,10 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
         return ResponseEntity.ok(authService.login(request));
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<ForgotPasswordResponse> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+        return ResponseEntity.ok(authService.forgotPassword(request.getEmail()));
     }
 }

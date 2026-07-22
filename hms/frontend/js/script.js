@@ -230,9 +230,55 @@ function highlightActiveNav() {
   });
 }
 
+// Wires every [data-toggle-password] button to flip its target input
+// between type="password" and type="text", swapping the eye icon.
+function initPasswordToggles() {
+  document.querySelectorAll(".password-toggle").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const targetId = btn.getAttribute("data-toggle-password");
+      const input = document.getElementById(targetId);
+      if (!input) return;
+      const isHidden = input.type === "password";
+      input.type = isHidden ? "text" : "password";
+      btn.innerHTML = isHidden
+        ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a21.6 21.6 0 0 1 5.06-6.06M9.9 4.24A10.4 10.4 0 0 1 12 4c7 0 11 8 11 8a21.6 21.6 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><path d="M1 1l22 22"/></svg>'
+        : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+    });
+  });
+}
+
+// Simple 4-bar password strength meter used on the register page.
+// Purely a UX nudge — the real minimum-length check still happens on submit.
+function initPasswordStrength(inputId, meterId, labelId) {
+  const input = document.getElementById(inputId);
+  const meter = document.getElementById(meterId);
+  const label = document.getElementById(labelId);
+  if (!input || !meter) return;
+
+  const bars = meter.querySelectorAll("span");
+  const colors = ["var(--danger)", "var(--warning)", "var(--blue)", "var(--green)"];
+  const labels = ["Too short", "Weak", "Good", "Strong"];
+
+  input.addEventListener("input", () => {
+    const val = input.value;
+    let score = 0;
+    if (val.length >= 6) score++;
+    if (val.length >= 10) score++;
+    if (/[A-Z]/.test(val) && /[0-9]/.test(val)) score++;
+    if (/[^A-Za-z0-9]/.test(val) && val.length >= 8) score++;
+    if (val.length === 0) score = 0;
+
+    bars.forEach((bar, i) => {
+      bar.style.background = i < score ? colors[Math.max(score - 1, 0)] : "var(--line)";
+    });
+    if (label) label.textContent = val.length === 0 ? "" : labels[Math.max(score - 1, 0)];
+  });
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   initPublicNav();
   initSidebar();
   initDarkModeToggle();
   highlightActiveNav();
+  initPasswordToggles();
 });

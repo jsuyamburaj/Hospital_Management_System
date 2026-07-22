@@ -163,19 +163,44 @@ footer.site-footer small { color: var(--ink-soft); }
 
 /* ---------------------------- Auth pages ---------------------------- */
 .auth-shell { min-height: 100vh; display: grid; grid-template-columns: 1fr 1fr; }
-.auth-visual { background: linear-gradient(160deg, var(--blue-dark), var(--blue) 60%, var(--green) 140%); color: #fff; padding: 56px; display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; }
+.auth-visual {
+  background: linear-gradient(160deg, var(--blue-dark), var(--blue) 55%, var(--green) 150%);
+  color: #fff; padding: 56px; display: flex; flex-direction: column; justify-content: space-between;
+  position: relative; overflow: hidden;
+}
 .auth-visual::after { content:""; position: absolute; inset: 0; background: radial-gradient(circle at 80% 20%, rgba(255,255,255,0.18), transparent 55%); }
+
+/* Soft floating blobs + a faint EKG trace for quiet motion behind the copy */
+.auth-blob { position: absolute; border-radius: 50%; filter: blur(2px); opacity: 0.35; background: rgba(255,255,255,0.5); animation: floatBlob 10s ease-in-out infinite; }
+.auth-blob.b1 { width: 180px; height: 180px; top: -40px; right: -50px; animation-delay: 0s; }
+.auth-blob.b2 { width: 120px; height: 120px; bottom: 10%; left: -30px; background: rgba(0,184,148,0.45); animation-delay: 2.4s; }
+.auth-blob.b3 { width: 90px; height: 90px; bottom: -20px; right: 18%; background: rgba(255,255,255,0.3); animation-delay: 4.8s; }
+@keyframes floatBlob { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-18px) scale(1.06); } }
+
 .auth-visual .brand { color: #fff; position: relative; z-index: 1; }
 .auth-visual .quote { position: relative; z-index: 1; font-family:"Manrope",sans-serif; font-size: 1.5rem; font-weight: 700; max-width: 26ch; }
 .auth-visual small { position: relative; z-index: 1; opacity: 0.8; }
-.auth-form-side { display: flex; align-items: center; justify-content: center; padding: 40px; }
-.auth-card { width: 100%; max-width: 420px; }
+.auth-visual .auth-ekg { position: relative; z-index: 1; width: 100%; max-width: 260px; height: 50px; opacity: 0.85; margin: 18px 0 -4px; }
+.auth-visual .auth-ekg path {
+  fill: none; stroke: #fff; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round;
+  stroke-dasharray: 400; stroke-dashoffset: 400; animation: authDraw 3s ease-out infinite;
+}
+@keyframes authDraw { 0% { stroke-dashoffset: 400; } 60%, 100% { stroke-dashoffset: 0; } }
+
+.auth-form-side { display: flex; align-items: center; justify-content: center; padding: 40px; background: var(--bg); }
+.auth-card {
+  width: 100%; max-width: 420px; background: var(--surface); border: 1px solid var(--line);
+  border-radius: var(--radius); box-shadow: var(--shadow-md); padding: 40px 36px;
+  animation: cardRise 0.5s ease;
+}
+@keyframes cardRise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 .auth-card h1 { font-size: 1.7rem; }
 .auth-card p.sub { margin-bottom: 28px; }
 
 @media (max-width: 860px) {
   .auth-shell { grid-template-columns: 1fr; }
   .auth-visual { display: none; }
+  .auth-card { box-shadow: none; border: none; padding: 32px 8px; }
 }
 
 .field { margin-bottom: 18px; }
@@ -190,6 +215,34 @@ footer.site-footer small { color: var(--ink-soft); }
 .field.has-error .error-text { display: block; }
 .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 .form-foot { text-align: center; margin-top: 20px; font-size: 0.9rem; color: var(--ink-soft); }
+.form-links-row { display: flex; justify-content: flex-end; margin: -8px 0 18px; font-size: 0.83rem; font-weight: 600; }
+
+/* Forgot-password result box (shows the demo temporary password) */
+.reset-result { background: var(--green-tint); border: 1px solid var(--green); border-radius: 10px; padding: 16px; margin-top: 20px; display: none; }
+.reset-result.visible { display: block; }
+.reset-result .temp-pw {
+  font-family: monospace; font-size: 1.15rem; font-weight: 700; letter-spacing: 0.05em;
+  background: var(--surface); border: 1px dashed var(--green); border-radius: 8px;
+  padding: 10px 14px; margin: 10px 0; text-align: center; color: var(--ink);
+}
+.reset-result p { font-size: 0.8rem; margin: 0; }
+
+/* Icon-prefixed inputs used on login/register (email, password) */
+.input-icon { position: relative; }
+.input-icon svg { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); width: 17px; height: 17px; color: var(--ink-soft); pointer-events: none; }
+.input-icon input { padding-left: 40px; }
+.input-icon input[type="password"], .input-icon input.has-toggle { padding-right: 42px; }
+.password-toggle {
+  position: absolute; right: 6px; top: 50%; transform: translateY(-50%); background: none; border: none;
+  cursor: pointer; color: var(--ink-soft); padding: 6px; display: flex; border-radius: 6px;
+}
+.password-toggle:hover { color: var(--blue); }
+.password-toggle svg { position: static; width: 17px; height: 17px; }
+
+/* Password strength meter (register page) */
+.strength-meter { display: flex; gap: 4px; margin-top: 8px; }
+.strength-meter span { height: 4px; flex: 1; border-radius: 2px; background: var(--line); transition: background 0.2s ease; }
+.strength-label { font-size: 0.76rem; color: var(--ink-soft); margin-top: 5px; display: block; }
 
 /* ---------------------------- Dashboard shell ---------------------------- */
 .app-shell { display: flex; min-height: 100vh; }

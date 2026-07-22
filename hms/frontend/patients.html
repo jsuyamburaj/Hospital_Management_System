@@ -20,6 +20,7 @@
       <li><a href="admin.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg> Dashboard</a></li>
       <li><a href="patients.html" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg> Patients</a></li>
       <li><a href="doctors.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg> Doctors</a></li>
+      <li><a href="billing-staff.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg> Billing Staff</a></li>
       <li><a href="appointments.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg> Appointments</a></li>
       <li><a href="billing.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg> Billing</a></li>
       <li><a href="reports.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 17V9M13 17V5M8 17v-4"/></svg> Reports</a></li>
@@ -96,13 +97,19 @@
       <div class="field-row">
         <div class="field" id="f-p-email">
           <label for="p-email">Email</label>
-          <input type="email" id="p-email" placeholder="Optional">
+          <input type="email" id="p-email" placeholder="Needed to create a login">
         </div>
         <div class="field" id="f-p-phone">
           <label for="p-phone">Phone</label>
           <input type="text" id="p-phone" placeholder="Optional">
         </div>
       </div>
+      <div class="field" id="f-p-password">
+        <label for="p-password">Login password</label>
+        <input type="password" id="p-password" placeholder="At least 6 characters" autocomplete="new-password">
+        <div class="error-text">Password must be at least 6 characters.</div>
+      </div>
+      <p id="p-password-hint" style="font-size:0.8rem;margin:-10px 0 16px;color:var(--ink-soft);">Leave email + password blank to create a record with no login access.</p>
       <button type="submit" class="btn btn-primary btn-block" id="patient-save-btn">Save Patient</button>
     </form>
   </div>
@@ -173,6 +180,8 @@ document.getElementById("add-patient-btn").addEventListener("click", () => {
   document.getElementById("patient-form").reset();
   document.getElementById("patient-id").value = "";
   document.getElementById("patient-modal-title").textContent = "Add Patient";
+  document.getElementById("f-p-password").style.display = "block";
+  document.getElementById("p-password-hint").style.display = "block";
   clearAllErrors(document.getElementById("patient-form"));
   openModal("patient-modal");
 });
@@ -188,6 +197,10 @@ function editPatient(id) {
   document.getElementById("p-email").value = p.email || "";
   document.getElementById("p-phone").value = p.phone || "";
   document.getElementById("patient-modal-title").textContent = "Edit Patient";
+  // Editing never touches login credentials here, so hide the password field.
+  document.getElementById("p-password").value = "";
+  document.getElementById("f-p-password").style.display = "none";
+  document.getElementById("p-password-hint").style.display = "none";
   clearAllErrors(document.getElementById("patient-form"));
   openModal("patient-modal");
 }
@@ -212,14 +225,27 @@ document.getElementById("patient-form").addEventListener("submit", async (e) => 
   if (!name) { showFieldError(document.getElementById("f-p-name"), "Name is required."); return; }
 
   const id = document.getElementById("patient-id").value;
+  const email = document.getElementById("p-email").value.trim();
+  const password = document.getElementById("p-password").value;
+
+  // Only enforce password length when creating AND a password was actually entered
+  if (!id && password && password.length < 6) {
+    showFieldError(document.getElementById("f-p-password"), "Password must be at least 6 characters.");
+    return;
+  }
+
   const payload = {
     name,
     age: document.getElementById("p-age").value ? Number(document.getElementById("p-age").value) : null,
     doctorId: document.getElementById("p-doctor").value ? Number(document.getElementById("p-doctor").value) : null,
     disease: document.getElementById("p-disease").value.trim() || null,
-    email: document.getElementById("p-email").value.trim() || null,
+    email: email || null,
     phone: document.getElementById("p-phone").value.trim() || null
   };
+  if (!id) {
+    // password is only relevant on create — the update endpoint doesn't touch login credentials
+    payload.password = password || null;
+  }
 
   const btn = document.getElementById("patient-save-btn");
   btn.disabled = true;

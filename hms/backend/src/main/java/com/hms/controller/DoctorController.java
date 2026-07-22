@@ -1,8 +1,9 @@
 package com.hms.controller;
 
-import com.hms.dto.CreateDoctorRequest;
+import com.hms.dto.DoctorCreateRequest;
 import com.hms.entity.Doctor;
 import com.hms.service.DoctorService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -17,6 +18,7 @@ public class DoctorController {
 
     private final DoctorService doctorService;
 
+    // Public: needed so the appointment-booking page can list doctors before login-gated pages load
     @GetMapping
     public ResponseEntity<List<Doctor>> getAll() {
         return ResponseEntity.ok(doctorService.getAll());
@@ -33,11 +35,10 @@ public class DoctorController {
         return ResponseEntity.ok(doctorService.getByUserId(userId));
     }
 
-    // Admin creates a doctor AND its login account (name/email/password) in one call
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Doctor> create(@RequestBody CreateDoctorRequest request) {
-        return ResponseEntity.ok(doctorService.createWithLogin(request));
+    public ResponseEntity<Doctor> create(@Valid @RequestBody DoctorCreateRequest request) {
+        return ResponseEntity.ok(doctorService.createWithAccount(request));
     }
 
     @PutMapping("/{id}")

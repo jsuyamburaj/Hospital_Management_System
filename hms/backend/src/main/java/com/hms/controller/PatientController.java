@@ -1,7 +1,9 @@
 package com.hms.controller;
 
+import com.hms.dto.PatientCreateRequest;
 import com.hms.entity.Patient;
 import com.hms.service.PatientService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -44,8 +46,8 @@ public class PatientController {
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Patient> create(@RequestBody Patient patient) {
-        return ResponseEntity.ok(patientService.create(patient));
+    public ResponseEntity<Patient> create(@Valid @RequestBody PatientCreateRequest request) {
+        return ResponseEntity.ok(patientService.createWithAccount(request));
     }
 
     @PutMapping("/{id}")
