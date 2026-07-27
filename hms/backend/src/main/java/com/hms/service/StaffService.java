@@ -39,6 +39,7 @@ public class StaffService {
                 .name(request.getName())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
+                .phone(request.getPhone())
                 .role(Role.BILLING_STAFF)
                 .build();
         user = userRepository.save(user);
@@ -59,6 +60,7 @@ public class StaffService {
                 .id(user.getId())
                 .name(user.getName())
                 .email(user.getEmail())
+                .phone(user.getPhone())
                 .build();
     }
 }

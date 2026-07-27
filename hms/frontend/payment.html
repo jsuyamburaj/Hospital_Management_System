@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pay Bill — MediCore HMS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="app-shell">
+  <aside class="sidebar">
+    <a href="dashboard.html" class="brand">
+      <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#2c7be5" stroke-width="2"><path d="M12 21s-7-4.35-9.5-8.5C.5 8.5 3 4 7 4c2 0 3.5 1 5 3 1.5-2 3-3 5-3 4 0 6.5 4.5 4.5 8.5C19 16.65 12 21 12 21z"/></svg>
+      MediCore
+    </a>
+    <ul class="side-nav">
+      <li><a href="dashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg> Dashboard</a></li>
+      <li><a href="appointment-book.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg> Book Appointment</a></li>
+      <li><a href="billing.html" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg> My Bills</a></li>
+      <li><a href="patient-history.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/><path d="M12 7v5l4 2"/></svg> History</a></li>
+      <li><a href="notifications.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg> Notifications</a></li>
+      <li><a href="profile.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg> Profile</a></li>
+    </ul>
+    <div class="sidebar-foot">
+      <div class="user-chip" id="user-chip"></div>
+      <a href="#" class="btn btn-ghost btn-sm btn-block logout-btn" style="margin-top:8px;justify-content:flex-start;">Log out</a>
+    </div>
+  </aside>
+
+  <div class="main-col">
+    <div class="topbar">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <button class="sidebar-toggle">☰</button>
+        <h1>Pay Bill</h1>
+      </div>
+      <button class="dark-toggle" aria-label="Toggle dark mode">🌙</button>
+    </div>
+
+    <div class="page-body">
+      <div class="panel" id="loading-panel">
+        <div class="skeleton skel-row"></div>
+      </div>
+
+      <div id="payment-content" style="display:none;">
+        <div class="panel">
+          <div class="panel-head"><h2>Bill summary</h2></div>
+          <p style="font-size:1.4rem;font-weight:800;font-family:'Manrope',sans-serif;margin:0 0 4px;" id="bill-amount">—</p>
+          <p style="margin:0;" id="bill-desc">—</p>
+        </div>
+
+        <div class="payment-grid">
+          <div class="panel">
+            <div class="panel-head"><h2>Scan to pay</h2></div>
+            <div class="qr-box">
+              <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <rect width="100" height="100" fill="#fff"/>
+                <g fill="#1a2b3c">
+                  <rect x="6" y="6" width="22" height="22"/><rect x="10" y="10" width="14" height="14" fill="#fff"/><rect x="14" y="14" width="6" height="6"/>
+                  <rect x="72" y="6" width="22" height="22"/><rect x="76" y="10" width="14" height="14" fill="#fff"/><rect x="80" y="14" width="6" height="6"/>
+                  <rect x="6" y="72" width="22" height="22"/><rect x="10" y="76" width="14" height="14" fill="#fff"/><rect x="14" y="80" width="6" height="6"/>
+                  <rect x="34" y="6" width="6" height="6"/><rect x="46" y="6" width="6" height="6"/><rect x="58" y="12" width="6" height="6"/>
+                  <rect x="34" y="18" width="6" height="6"/><rect x="52" y="18" width="6" height="6"/>
+                  <rect x="34" y="34" width="6" height="6"/><rect x="46" y="34" width="6" height="6"/><rect x="58" y="34" width="6" height="6"/><rect x="70" y="34" width="6" height="6"/>
+                  <rect x="40" y="46" width="6" height="6"/><rect x="52" y="46" width="6" height="6"/><rect x="64" y="46" width="6" height="6"/><rect x="76" y="46" width="6" height="6"/>
+                  <rect x="34" y="58" width="6" height="6"/><rect x="46" y="58" width="6" height="6"/><rect x="70" y="58" width="6" height="6"/><rect x="82" y="58" width="6" height="6"/>
+                  <rect x="40" y="70" width="6" height="6"/><rect x="58" y="70" width="6" height="6"/><rect x="88" y="70" width="6" height="6"/>
+                  <rect x="34" y="82" width="6" height="6"/><rect x="46" y="82" width="6" height="6"/><rect x="64" y="88" width="6" height="6"/><rect x="76" y="82" width="6" height="6"/>
+                </g>
+              </svg>
+              <p style="font-size:0.82rem;margin:0;">Scan with any UPI app (GPay, PhonePe, Paytm)</p>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head"><h2>Or pay via UPI ID</h2></div>
+            <div class="pay-id-row">
+              <span id="upi-id">medicore.billing@okhdfc</span>
+              <button class="icon-btn" id="copy-upi-btn" aria-label="Copy UPI ID">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              </button>
+            </div>
+            <p style="font-size:0.82rem;margin-top:14px;">Open your UPI app, send the exact bill amount to this ID, then confirm below once it's done.</p>
+            <button class="btn btn-secondary btn-block" id="confirm-paid-btn" style="margin-top:10px;">I've Completed the Payment</button>
+            <p style="font-size:0.76rem;color:var(--ink-soft);margin-top:10px;">
+              Demo note: this button marks the bill paid directly since there's no real
+              payment gateway wired up. In production this would be a webhook from the
+              UPI/payment provider confirming funds received.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="js/script.js"></script>
+<script>
+const user = Auth.requireRole(["PATIENT"]);
+const params = new URLSearchParams(window.location.search);
+const billId = params.get("billId");
+
+if (user) {
+  renderUserChip();
+  if (!billId) {
+    toast("No bill selected.", "error");
+    setTimeout(() => (window.location.href = "billing.html"), 800);
+  } else {
+    load();
+  }
+}
+
+async function load() {
+  try {
+    const patient = await api("/patients/me?userId=" + user.userId);
+    const bills = await api(`/billing/patient/${patient.id}`);
+    const bill = bills.find(b => String(b.id) === billId);
+
+    if (!bill) {
+      toast("Bill not found.", "error");
+      setTimeout(() => (window.location.href = "billing.html"), 800);
+      return;
+    }
+    if (bill.status === "PAID") {
+      toast("This bill is already paid.", "info");
+      setTimeout(() => (window.location.href = "billing.html"), 800);
+      return;
+    }
+
+    document.getElementById("bill-amount").textContent = formatCurrency(bill.amount);
+    document.getElementById("bill-desc").textContent = bill.description || "Medical services";
+    document.getElementById("loading-panel").style.display = "none";
+    document.getElementById("payment-content").style.display = "block";
+
+    document.getElementById("confirm-paid-btn").addEventListener("click", async () => {
+      const btn = document.getElementById("confirm-paid-btn");
+      btn.disabled = true;
+      btn.textContent = "Confirming...";
+      try {
+        await api(`/billing/${bill.id}/pay-online`, { method: "PUT" });
+        toast("Payment confirmed — thank you!", "success");
+        setTimeout(() => (window.location.href = "billing.html"), 900);
+      } catch (err) {
+        toast(err.message, "error");
+        btn.disabled = false;
+        btn.textContent = "I've Completed the Payment";
+      }
+    });
+  } catch (err) {
+    toast(err.message, "error");
+  }
+}
+
+document.getElementById("copy-upi-btn")?.addEventListener("click", () => {
+  navigator.clipboard.writeText(document.getElementById("upi-id").textContent.trim());
+  toast("UPI ID copied.", "success");
+});
+</script>
+</body>
+</html>

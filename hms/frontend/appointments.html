@@ -24,6 +24,7 @@
       <li><a href="appointments.html" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg> Appointments</a></li>
       <li><a href="billing.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg> Billing</a></li>
       <li><a href="reports.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 17V9M13 17V5M8 17v-4"/></svg> Reports</a></li>
+            <li><a href="notifications.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg> Notifications</a></li>
       <li><a href="profile.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg> Profile</a></li>
     </ul>
     <div class="sidebar-foot">
@@ -55,11 +56,12 @@
             </select>
           </div>
         </div>
+        <p class="pill-note">View-only — each doctor accepts, rejects, and completes their own appointments from their dashboard.</p>
         <div class="table-scroll">
           <table class="data-table">
-            <thead><tr><th>Patient</th><th>Doctor</th><th>Date</th><th>Reason</th><th>Status</th><th></th></tr></thead>
+            <thead><tr><th>Patient</th><th>Doctor</th><th>Date</th><th>Reason</th><th>Status</th></tr></thead>
             <tbody id="appointments-body">
-              <tr><td colspan="6"><div class="skeleton skel-row"></div></td></tr>
+              <tr><td colspan="5"><div class="skeleton skel-row"></div></td></tr>
             </tbody>
           </table>
         </div>
@@ -77,6 +79,7 @@ let allPatients = [];
 
 if (user) {
   renderUserChip();
+  loadNotifBadge();
   loadAppointments();
 }
 
@@ -94,30 +97,19 @@ async function loadAppointments() {
 function renderAppointments(list) {
   const body = document.getElementById("appointments-body");
   if (list.length === 0) {
-    body.innerHTML = `<tr class="empty-row"><td colspan="6">No appointments found.</td></tr>`;
+    body.innerHTML = `<tr class="empty-row"><td colspan="5">No appointments found.</td></tr>`;
     return;
   }
   const sorted = [...list].sort((a, b) => b.id - a.id);
   body.innerHTML = sorted.map(a => {
     const patient = allPatients.find(p => p.id === a.patientId);
     const doctor = allDoctors.find(d => d.id === a.doctorId);
-    const isPending = a.status === "PENDING";
     return `<tr>
       <td>${patient ? escapeHtml(patient.name) : "Patient #" + a.patientId}</td>
       <td>${doctor ? escapeHtml(doctor.name) : "Doctor #" + a.doctorId}</td>
       <td>${formatDate(a.date)}</td>
       <td>${a.reason ? escapeHtml(a.reason) : "—"}</td>
       <td><span class="badge ${statusBadgeClass(a.status)}">${a.status.toLowerCase()}</span></td>
-      <td>
-        <div class="row-actions">
-          ${isPending ? `
-            <button class="icon-btn" onclick="setStatus(${a.id}, 'APPROVED')" aria-label="Approve" title="Approve"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></button>
-            <button class="icon-btn danger" onclick="setStatus(${a.id}, 'REJECTED')" aria-label="Reject" title="Reject"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
-          ` : `
-            <button class="icon-btn" onclick="setStatus(${a.id}, 'COMPLETED')" aria-label="Mark completed" title="Mark completed"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></button>
-          `}
-        </div>
-      </td>
     </tr>`;
   }).join("");
 }
@@ -127,16 +119,6 @@ document.getElementById("status-filter").addEventListener("change", (e) => {
   const filtered = val ? allAppointments.filter(a => a.status === val) : allAppointments;
   renderAppointments(filtered);
 });
-
-async function setStatus(id, status) {
-  try {
-    await api(`/appointments/${id}/status`, { method: "PUT", body: { status } });
-    toast(`Appointment ${status.toLowerCase()}.`, "success");
-    loadAppointments();
-  } catch (err) {
-    toast(err.message, "error");
-  }
-}
 </script>
 </body>
 </html>

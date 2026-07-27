@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My History — MediCore HMS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="app-shell">
+  <aside class="sidebar">
+    <a href="dashboard.html" class="brand">
+      <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#2c7be5" stroke-width="2"><path d="M12 21s-7-4.35-9.5-8.5C.5 8.5 3 4 7 4c2 0 3.5 1 5 3 1.5-2 3-3 5-3 4 0 6.5 4.5 4.5 8.5C19 16.65 12 21 12 21z"/></svg>
+      MediCore
+    </a>
+    <ul class="side-nav">
+      <li><a href="dashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg> Dashboard</a></li>
+      <li><a href="appointment-book.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg> Book Appointment</a></li>
+      <li><a href="billing.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg> My Bills</a></li>
+      <li><a href="patient-history.html" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/><path d="M12 7v5l4 2"/></svg> History</a></li>
+      <li><a href="notifications.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg> Notifications</a></li>
+      <li><a href="profile.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg> Profile</a></li>
+    </ul>
+    <div class="sidebar-foot">
+      <div class="user-chip" id="user-chip"></div>
+      <a href="#" class="btn btn-ghost btn-sm btn-block logout-btn" style="margin-top:8px;justify-content:flex-start;">Log out</a>
+    </div>
+  </aside>
+
+  <div class="main-col">
+    <div class="topbar">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <button class="sidebar-toggle">☰</button>
+        <h1>My History</h1>
+      </div>
+      <button class="dark-toggle" aria-label="Toggle dark mode">🌙</button>
+    </div>
+
+    <div class="page-body">
+      <div class="panel">
+        <div class="panel-head"><h2>Past appointments &amp; treatment</h2></div>
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead><tr><th>Doctor</th><th>Date</th><th>Reason</th><th>Status</th><th>Medicines</th></tr></thead>
+            <tbody id="history-body"><tr><td colspan="5"><div class="skeleton skel-row"></div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><h2>Bill history</h2></div>
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead><tr><th>Amount</th><th>Date</th><th>Description</th><th>Method</th><th>Status</th></tr></thead>
+            <tbody id="billing-history-body"><tr><td colspan="5"><div class="skeleton skel-row"></div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="js/script.js"></script>
+<script>
+const user = Auth.requireRole(["PATIENT"]);
+if (user) {
+  renderUserChip();
+  loadNotifBadge();
+  load();
+}
+
+async function load() {
+  try {
+    const patient = await api("/patients/me?userId=" + user.userId);
+    const [appointments, billings, prescriptions, doctors] = await Promise.all([
+      api(`/appointments/patient/${patient.id}`),
+      api(`/billing/patient/${patient.id}`),
+      api(`/prescriptions/patient/${patient.id}`),
+      api("/doctors")
+    ]);
+
+    const sortedAppts = [...appointments].sort((a, b) => b.id - a.id);
+    const historyBody = document.getElementById("history-body");
+    historyBody.innerHTML = sortedAppts.length === 0
+      ? `<tr class="empty-row"><td colspan="5">No appointment history yet.</td></tr>`
+      : sortedAppts.map(a => {
+          const doctor = doctors.find(d => d.id === a.doctorId);
+          const rx = prescriptions.find(p => p.appointmentId === a.id);
+          return `<tr>
+            <td>${doctor ? escapeHtml(doctor.name) : "Doctor #" + a.doctorId}</td>
+            <td>${formatDate(a.date)}</td>
+            <td>${a.reason ? escapeHtml(a.reason) : "—"}</td>
+            <td><span class="badge ${statusBadgeClass(a.status)}">${a.status.toLowerCase()}</span></td>
+            <td>${rx ? escapeHtml(rx.medicines) : "—"}</td>
+          </tr>`;
+        }).join("");
+
+    const sortedBills = [...billings].sort((a, b) => b.id - a.id);
+    const billBody = document.getElementById("billing-history-body");
+    billBody.innerHTML = sortedBills.length === 0
+      ? `<tr class="empty-row"><td colspan="5">No bills yet.</td></tr>`
+      : sortedBills.map(b => `<tr>
+          <td>${formatCurrency(b.amount)}</td><td>${formatDate(b.date)}</td>
+          <td>${b.description ? escapeHtml(b.description) : "—"}</td>
+          <td>${b.paymentMethod ? escapeHtml(b.paymentMethod.toLowerCase()) : "—"}</td>
+          <td><span class="badge ${statusBadgeClass(b.status)}">${b.status.toLowerCase()}</span></td>
+        </tr>`).join("");
+  } catch (err) {
+    toast(err.message, "error");
+  }
+}
+</script>
+</body>
+</html>

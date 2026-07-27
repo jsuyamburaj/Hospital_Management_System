@@ -239,6 +239,21 @@ footer.site-footer small { color: var(--ink-soft); }
 .password-toggle:hover { color: var(--blue); }
 .password-toggle svg { position: static; width: 17px; height: 17px; }
 
+/* Edge/IE and some Chromium builds inject their own reveal-password and
+   clear icons inside password inputs — that's the "second eye icon" users
+   see next to our custom toggle. Hide the native ones everywhere. */
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear { display: none; width: 0; height: 0; }
+input[type="password"]::-webkit-textfield-decoration-container { visibility: hidden; }
+
+/* Auth visual panel — feature list to fill the empty space below the quote */
+.auth-features { list-style: none; margin: 18px 0 0; padding: 0; position: relative; z-index: 1; }
+.auth-features li { display: flex; align-items: center; gap: 10px; font-size: 0.88rem; font-weight: 600; opacity: 0.95; margin-bottom: 12px; }
+.auth-features li svg { width: 18px; height: 18px; flex-shrink: 0; stroke: #fff; }
+.auth-stats-row { display: flex; gap: 28px; position: relative; z-index: 1; margin-top: 22px; }
+.auth-stats-row div b { display: block; font-family: "Manrope", sans-serif; font-size: 1.3rem; }
+.auth-stats-row div span { font-size: 0.74rem; opacity: 0.8; text-transform: uppercase; letter-spacing: 0.05em; }
+
 /* Password strength meter (register page) */
 .strength-meter { display: flex; gap: 4px; margin-top: 8px; }
 .strength-meter span { height: 4px; flex: 1; border-radius: 2px; background: var(--line); transition: background 0.2s ease; }
@@ -369,4 +384,47 @@ table.data-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
 body.dark-mode {
   --bg: #101826; --surface: #16202f; --ink: #eef2f8; --ink-soft: #93a3b8; --line: #263248;
   --blue-tint: rgba(44,123,229,0.15); --green-tint: rgba(0,184,148,0.15); --danger-tint: rgba(230,55,87,0.15); --warning-tint: rgba(245,166,35,0.15);
+}
+
+/* ---------------------------- Notifications ---------------------------- */
+.notif-list { display: flex; flex-direction: column; gap: 10px; }
+.notif-item {
+  display: flex; gap: 14px; align-items: flex-start; padding: 16px; border-radius: 12px;
+  border: 1px solid var(--line); background: var(--surface); transition: background 0.15s ease;
+}
+.notif-item.unread { background: var(--blue-tint); border-color: var(--blue); }
+.notif-icon { width: 36px; height: 36px; border-radius: 10px; background: var(--blue-tint); color: var(--blue); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.notif-icon svg { width: 17px; height: 17px; }
+.notif-body { flex: 1; min-width: 0; }
+.notif-body p { margin: 0; color: var(--ink); font-size: 0.92rem; }
+.notif-body small { color: var(--ink-soft); font-size: 0.76rem; }
+.notif-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--blue); flex-shrink: 0; margin-top: 6px; }
+.nav-badge {
+  margin-left: auto; background: var(--danger); color: #fff; font-size: 0.68rem; font-weight: 800;
+  border-radius: 999px; padding: 1px 7px; line-height: 1.4;
+}
+
+/* ---------------------------- Payment page ---------------------------- */
+.payment-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+@media (max-width: 760px) { .payment-grid { grid-template-columns: 1fr; } }
+.qr-box { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 24px; text-align: center; }
+.qr-box img, .qr-box svg { width: 190px; height: 190px; margin: 0 auto 14px; display: block; }
+.pay-id-row { display: flex; align-items: center; justify-content: space-between; background: var(--bg); border: 1px dashed var(--line); border-radius: 10px; padding: 12px 14px; margin-top: 10px; }
+.pay-id-row span { font-family: monospace; font-weight: 700; }
+.method-toggle { display: flex; gap: 10px; margin-bottom: 20px; }
+.method-toggle button {
+  flex: 1; padding: 14px; border-radius: 10px; border: 1.5px solid var(--line); background: var(--surface);
+  cursor: pointer; font-weight: 700; color: var(--ink-soft); transition: all 0.15s ease;
+}
+.method-toggle button.active { border-color: var(--blue); color: var(--blue); background: var(--blue-tint); }
+
+/* ---------------------------- Awaiting billing / history highlight ---------------------------- */
+.pill-note { font-size: 0.8rem; color: var(--ink-soft); background: var(--bg); border-radius: 8px; padding: 8px 12px; margin-bottom: 14px; }
+
+/* ---------------------------- Print / export ---------------------------- */
+@media print {
+  .sidebar, .topbar, .toolbar, .btn, .modal-overlay { display: none !important; }
+  .app-shell, .main-col, .page-body { display: block !important; padding: 0 !important; margin: 0 !important; }
+  body { background: #fff !important; }
+  .panel { box-shadow: none !important; border: none !important; }
 }

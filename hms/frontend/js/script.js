@@ -212,7 +212,7 @@ function formatDate(dateStr) {
 }
 
 function formatCurrency(n) {
-  return "$" + Number(n || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return "\u20B9" + Number(n || 0).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
 function skeletonRows(count, columns) {
@@ -282,3 +282,67 @@ document.addEventListener("DOMContentLoaded", () => {
   highlightActiveNav();
   initPasswordToggles();
 });
+
+/* ------------------------ Export helpers (Reports page) ------------------------ */
+// Reads visible rows/columns of a <table id="tableId"> and downloads them as CSV
+// (opens cleanly in Excel/Sheets - no external library needed).
+function exportTableAsCSV(tableId, filename) {
+  const table = document.getElementById(tableId);
+  if (!table) return;
+  const rows = Array.from(table.querySelectorAll("tr"));
+  const csv = rows.map(row =>
+    Array.from(row.querySelectorAll("th,td"))
+      .map(cell => `"${cell.textContent.trim().replace(/"/g, '""')}"`)
+      .join(",")
+  ).join("\n");
+
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename.endsWith(".csv") ? filename : filename + ".csv";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+// "Export as PDF" — uses the browser's built-in print-to-PDF via the print
+// stylesheet (see @media print in style.css), which hides chrome (sidebar,
+// buttons) and leaves just the report content. No PDF library needed.
+function exportPageAsPDF() {
+  window.print();
+}
+
+/* ------------------------ Notifications badge ------------------------ */
+// Fetches the current user's notifications and, if any are unread, shows a
+// count badge on whichever sidebar link points to notifications.html.
+async function loadNotifBadge() {
+  try {
+    const notifs = await api("/notifications");
+    const unread = notifs.filter(n => !n.read).length;
+    if (unread === 0) return;
+    document.querySelectorAll('a[href="notifications.html"]').forEach(link => {
+      if (link.querySelector(".nav-badge")) return;
+      const badge = document.createElement("span");
+      badge.className = "nav-badge";
+      badge.textContent = unread > 9 ? "9+" : String(unread);
+      link.appendChild(badge);
+    });
+  } catch {
+    // Not logged in yet or endpoint unavailable - fail silently, badge is a nicety.
+  }
+}
+
+// Human-friendly "x minutes/hours/days ago" for notification timestamps
+function timeAgo(isoString) {
+  if (!isoString) return "";
+  const diffMs = Date.now() - new Date(isoString).getTime();
+  const mins = Math.round(diffMs / 60000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins}m ago`;
+  const hours = Math.round(mins / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.round(hours / 24);
+  return `${days}d ago`;
+}

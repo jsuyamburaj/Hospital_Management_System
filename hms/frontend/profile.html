@@ -40,12 +40,48 @@
           <p id="profile-role" style="text-transform:capitalize;">—</p>
         </div>
 
-        <div class="panel">
-          <div class="panel-head"><h2>Account details</h2></div>
-          <div id="profile-details">
-            <div class="skeleton skel-row"></div>
-            <div class="skeleton skel-row"></div>
-            <div class="skeleton skel-row"></div>
+        <div>
+          <div class="panel">
+            <div class="panel-head"><h2>Account details</h2></div>
+            <div class="field"><label>Full name</label><input type="text" id="ro-name" disabled></div>
+            <div class="field"><label>Email</label><input type="email" id="ro-email" disabled></div>
+            <p style="font-size:0.8rem;margin:-4px 0 16px;">Name and email are locked to keep your login and records consistent — contact an administrator if these need to change.</p>
+
+            <form id="edit-form">
+              <div id="editable-fields">
+                <div class="skeleton skel-row"></div>
+              </div>
+              <button type="submit" class="btn btn-primary" id="save-profile-btn">Save Changes</button>
+            </form>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head"><h2>Change password</h2></div>
+            <form id="password-form">
+              <div class="field" id="f-current-password">
+                <label for="current-password">Current password</label>
+                <div class="input-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                  <input type="password" id="current-password" class="has-toggle">
+                  <button type="button" class="password-toggle" data-toggle-password="current-password" aria-label="Show password">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  </button>
+                </div>
+                <div class="error-text">Current password is required.</div>
+              </div>
+              <div class="field" id="f-new-password">
+                <label for="new-password">New password</label>
+                <div class="input-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                  <input type="password" id="new-password" class="has-toggle" placeholder="At least 6 characters">
+                  <button type="button" class="password-toggle" data-toggle-password="new-password" aria-label="Show password">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  </button>
+                </div>
+                <div class="error-text">New password must be at least 6 characters.</div>
+              </div>
+              <button type="submit" class="btn btn-secondary" id="change-password-btn">Update Password</button>
+            </form>
           </div>
         </div>
       </div>
@@ -59,6 +95,7 @@ const user = Auth.requireRole(null);
 if (user) {
   document.getElementById("brand-link").href = { ADMIN: "admin.html", DOCTOR: "staff.html", BILLING_STAFF: "staff.html", PATIENT: "dashboard.html" }[user.role];
   renderUserChip();
+  loadNotifBadge();
   buildSidebar();
   loadProfile();
 }
@@ -74,55 +111,113 @@ function buildSidebar() {
       <li><a href="appointments.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg> Appointments</a></li>
       <li><a href="billing.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg> Billing</a></li>
       <li><a href="reports.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 17V9M13 17V5M8 17v-4"/></svg> Reports</a></li>
+      <li><a href="notifications.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg> Notifications</a></li>
       <li><a href="profile.html" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg> Profile</a></li>`,
     DOCTOR: `
       <li><a href="staff.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg> Dashboard</a></li>
+      <li><a href="doctor-appointments.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg> My Appointments</a></li>
+      <li><a href="doctor-history.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/><path d="M12 7v5l4 2"/></svg> History</a></li>
+      <li><a href="notifications.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg> Notifications</a></li>
       <li><a href="profile.html" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg> Profile</a></li>`,
     BILLING_STAFF: `
       <li><a href="staff.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg> Dashboard</a></li>
       <li><a href="billing.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg> Billing</a></li>
+      <li><a href="billing-history.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/><path d="M12 7v5l4 2"/></svg> History</a></li>
+      <li><a href="notifications.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg> Notifications</a></li>
       <li><a href="profile.html" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg> Profile</a></li>`,
     PATIENT: `
       <li><a href="dashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg> Dashboard</a></li>
       <li><a href="appointment-book.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg> Book Appointment</a></li>
       <li><a href="billing.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg> My Bills</a></li>
+      <li><a href="patient-history.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/><path d="M12 7v5l4 2"/></svg> History</a></li>
+      <li><a href="notifications.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg> Notifications</a></li>
       <li><a href="profile.html" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg> Profile</a></li>`
   };
   nav.innerHTML = map[user.role] || map.PATIENT;
 }
+
+let patientProfile = null;
+let doctorProfile = null;
 
 async function loadProfile() {
   const initials = user.name.split(" ").map(w => w[0]).slice(0, 2).join("").toUpperCase();
   document.getElementById("profile-avatar").textContent = initials;
   document.getElementById("profile-name").textContent = user.name;
   document.getElementById("profile-role").textContent = user.role.replace("_", " ").toLowerCase();
+  document.getElementById("ro-name").value = user.name;
+  document.getElementById("ro-email").value = user.email;
 
-  let extra = "";
+  const fieldsEl = document.getElementById("editable-fields");
+
   try {
     if (user.role === "PATIENT") {
-      const p = await api("/patients/me?userId=" + user.userId);
-      extra = `
-        <div class="field"><label>Age</label><input type="text" value="${p.age ?? '—'}" disabled></div>
-        <div class="field"><label>Disease / reason on file</label><input type="text" value="${escapeHtml(p.disease || '—')}" disabled></div>
-        <div class="field"><label>Phone</label><input type="text" value="${escapeHtml(p.phone || '—')}" disabled></div>`;
+      patientProfile = await api("/patients/me?userId=" + user.userId);
+      fieldsEl.innerHTML = `
+        <div class="field-row">
+          <div class="field"><label for="edit-age">Age</label><input type="number" id="edit-age" value="${patientProfile.age ?? ''}"></div>
+          <div class="field"><label for="edit-phone">Phone</label><input type="text" id="edit-phone" value="${escapeHtml(patientProfile.phone || '')}"></div>
+        </div>
+        <div class="field"><label for="edit-disease">Reason / condition on file</label><input type="text" id="edit-disease" value="${escapeHtml(patientProfile.disease || '')}"></div>`;
     } else if (user.role === "DOCTOR") {
-      const d = await api("/doctors/me?userId=" + user.userId);
-      extra = `
-        <div class="field"><label>Specialization</label><input type="text" value="${escapeHtml(d.specialization)}" disabled></div>
-        <div class="field"><label>Phone</label><input type="text" value="${escapeHtml(d.phone || '—')}" disabled></div>`;
+      doctorProfile = await api("/doctors/me?userId=" + user.userId);
+      fieldsEl.innerHTML = `
+        <div class="field"><label for="edit-specialization">Specialization</label><input type="text" id="edit-specialization" value="${escapeHtml(doctorProfile.specialization || '')}"></div>
+        <div class="field"><label for="edit-phone">Phone</label><input type="text" id="edit-phone" value="${escapeHtml(doctorProfile.phone || '')}"></div>`;
+    } else {
+      fieldsEl.innerHTML = `
+        <div class="field"><label for="edit-phone">Phone</label><input type="text" id="edit-phone" value="${escapeHtml(user.phone || '')}"></div>`;
     }
   } catch (err) {
-    // linked profile may not exist for admin/billing staff — that's fine
+    fieldsEl.innerHTML = `<div class="field"><label for="edit-phone">Phone</label><input type="text" id="edit-phone" placeholder="Optional"></div>`;
   }
-
-  document.getElementById("profile-details").innerHTML = `
-    <div class="field"><label>Full name</label><input type="text" value="${escapeHtml(user.name)}" disabled></div>
-    <div class="field"><label>Email</label><input type="email" value="${escapeHtml(user.email)}" disabled></div>
-    <div class="field"><label>Role</label><input type="text" value="${escapeHtml(user.role.replace('_',' '))}" disabled></div>
-    ${extra}
-    <p style="font-size:0.85rem;margin-top:10px;">Need to update these details? Ask an administrator — profile editing isn't self-service yet.</p>
-  `;
 }
+
+document.getElementById("edit-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const payload = { phone: document.getElementById("edit-phone")?.value.trim() || null };
+
+  const ageEl = document.getElementById("edit-age");
+  const diseaseEl = document.getElementById("edit-disease");
+  const specEl = document.getElementById("edit-specialization");
+  if (ageEl) payload.age = ageEl.value ? Number(ageEl.value) : null;
+  if (diseaseEl) payload.disease = diseaseEl.value.trim() || null;
+  if (specEl) payload.specialization = specEl.value.trim() || null;
+
+  const btn = document.getElementById("save-profile-btn");
+  btn.disabled = true;
+  try {
+    await api("/users/me", { method: "PUT", body: payload });
+    toast("Profile updated.", "success");
+  } catch (err) {
+    toast(err.message, "error");
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+document.getElementById("password-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  clearAllErrors(e.target);
+
+  const currentPassword = document.getElementById("current-password").value;
+  const newPassword = document.getElementById("new-password").value;
+  let valid = true;
+  if (!currentPassword) { showFieldError(document.getElementById("f-current-password"), "Current password is required."); valid = false; }
+  if (newPassword.length < 6) { showFieldError(document.getElementById("f-new-password"), "New password must be at least 6 characters."); valid = false; }
+  if (!valid) return;
+
+  const btn = document.getElementById("change-password-btn");
+  btn.disabled = true;
+  try {
+    await api("/users/me/password", { method: "PUT", body: { currentPassword, newPassword } });
+    toast("Password updated.", "success");
+    e.target.reset();
+  } catch (err) {
+    toast(err.message, "error");
+  } finally {
+    btn.disabled = false;
+  }
+});
 </script>
 </body>
 </html>

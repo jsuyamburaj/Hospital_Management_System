@@ -39,4 +39,13 @@ public class Billing {
     private LocalDate date;
 
     private String description;
+
+    // Optional link back to the completed treatment this bill covers
+    private Long prescriptionId;
+
+    // Null until the bill is paid. Set to ONLINE when the patient pays via
+    // the in-app payment page, or OFFLINE when billing staff records a
+    // manual/in-person payment.
+    @Enumerated(EnumType.STRING)
+    private PaymentMethod paymentMethod;
 }

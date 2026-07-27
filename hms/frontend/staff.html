@@ -43,11 +43,14 @@
       <!-- DOCTOR VIEW -->
       <div id="doctor-view" style="display:none;">
         <div class="panel">
-          <div class="panel-head"><h2>My Appointments</h2></div>
+          <div class="panel-head">
+            <h2>Pending Requests</h2>
+            <a href="doctor-appointments.html" class="btn btn-primary btn-sm">Manage appointments</a>
+          </div>
           <div class="table-scroll">
             <table class="data-table">
-              <thead><tr><th>Patient</th><th>Date</th><th>Reason</th><th>Status</th><th></th></tr></thead>
-              <tbody id="doctor-appts-body"><tr><td colspan="5"><div class="skeleton skel-row"></div></td></tr></tbody>
+              <thead><tr><th>Patient</th><th>Date</th><th>Reason</th><th>Status</th></tr></thead>
+              <tbody id="doctor-pending-body"><tr><td colspan="4"><div class="skeleton skel-row"></div></td></tr></tbody>
             </table>
           </div>
         </div>
@@ -66,13 +69,26 @@
       <div id="billing-view" style="display:none;">
         <div class="panel">
           <div class="panel-head">
+            <h2>Awaiting Billing</h2>
+            <a href="billing.html" class="btn btn-primary btn-sm">Go to billing</a>
+          </div>
+          <p class="pill-note">Patients whose treatment is complete but don't have a bill yet.</p>
+          <div class="table-scroll">
+            <table class="data-table">
+              <thead><tr><th>Patient</th><th>Doctor</th><th>Medicines</th><th></th></tr></thead>
+              <tbody id="awaiting-billing-body"><tr><td colspan="4"><div class="skeleton skel-row"></div></td></tr></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-head">
             <h2>Recent Bills</h2>
             <a href="billing.html" class="btn btn-outline btn-sm">Manage all billing</a>
           </div>
           <div class="table-scroll">
             <table class="data-table">
-              <thead><tr><th>Patient ID</th><th>Amount</th><th>Date</th><th>Status</th></tr></thead>
-              <tbody id="billing-recent-body"><tr><td colspan="4"><div class="skeleton skel-row"></div></td></tr></tbody>
+              <thead><tr><th>Patient ID</th><th>Amount</th><th>Date</th><th>Method</th><th>Status</th></tr></thead>
+              <tbody id="billing-recent-body"><tr><td colspan="5"><div class="skeleton skel-row"></div></td></tr></tbody>
             </table>
           </div>
         </div>
@@ -87,6 +103,7 @@ const user = Auth.requireRole(["DOCTOR", "BILLING_STAFF"]);
 if (user) {
   renderUserChip();
   buildSidebar();
+  loadNotifBadge();
   if (user.role === "DOCTOR") {
     document.getElementById("page-title").textContent = "Doctor Dashboard";
     document.getElementById("doctor-view").style.display = "block";
@@ -103,11 +120,16 @@ function buildSidebar() {
   if (user.role === "DOCTOR") {
     nav.innerHTML = `
       <li><a href="staff.html" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg> Dashboard</a></li>
+      <li><a href="doctor-appointments.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg> My Appointments</a></li>
+      <li><a href="doctor-history.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/><path d="M12 7v5l4 2"/></svg> History</a></li>
+      <li><a href="notifications.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg> Notifications</a></li>
       <li><a href="profile.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg> Profile</a></li>`;
   } else {
     nav.innerHTML = `
       <li><a href="staff.html" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg> Dashboard</a></li>
       <li><a href="billing.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg> Billing</a></li>
+      <li><a href="billing-history.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/><path d="M12 7v5l4 2"/></svg> History</a></li>
+      <li><a href="notifications.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg> Notifications</a></li>
       <li><a href="profile.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg> Profile</a></li>`;
   }
 }
@@ -119,32 +141,31 @@ async function loadDoctorView() {
       api(`/appointments/doctor/${doctor.id}`),
       api(`/patients/by-doctor/${doctor.id}`)
     ]);
+
+    const pending = appointments.filter(a => a.status === "PENDING");
+
     document.getElementById("stat-cards").innerHTML = `
       <div class="stat-card blue">
         <div class="top-row"><div class="icon-badge"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div></div>
-        <div class="value">${appointments.length}</div><div class="label">My Appointments</div>
+        <div class="value">${pending.length}</div><div class="label">Pending Requests</div>
       </div>
       <div class="stat-card green">
         <div class="top-row"><div class="icon-badge"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div></div>
         <div class="value">${patients.length}</div><div class="label">Assigned Patients</div>
       </div>`;
 
-    const apptBody = document.getElementById("doctor-appts-body");
-    if (appointments.length === 0) {
-      apptBody.innerHTML = `<tr class="empty-row"><td colspan="5">No appointments assigned yet.</td></tr>`;
-    } else {
-      apptBody.innerHTML = [...appointments].sort((a,b) => b.id - a.id).map(a => {
-        const patient = patients.find(p => p.id === a.patientId);
-        const isActionable = a.status === "APPROVED";
-        return `<tr>
-          <td>${patient ? escapeHtml(patient.name) : "Patient #" + a.patientId}</td>
-          <td>${formatDate(a.date)}</td>
-          <td>${a.reason ? escapeHtml(a.reason) : "—"}</td>
-          <td><span class="badge ${statusBadgeClass(a.status)}">${a.status.toLowerCase()}</span></td>
-          <td>${isActionable ? `<button class="btn btn-outline btn-sm" onclick="markCompleted(${a.id})">Mark Completed</button>` : ""}</td>
-        </tr>`;
-      }).join("");
-    }
+    const pendingBody = document.getElementById("doctor-pending-body");
+    pendingBody.innerHTML = pending.length === 0
+      ? `<tr class="empty-row"><td colspan="4">No pending requests right now.</td></tr>`
+      : pending.map(a => {
+          const patient = patients.find(p => p.id === a.patientId);
+          return `<tr>
+            <td>${patient ? escapeHtml(patient.name) : "Patient #" + a.patientId}</td>
+            <td>${formatDate(a.date)}</td>
+            <td>${a.reason ? escapeHtml(a.reason) : "—"}</td>
+            <td><span class="badge ${statusBadgeClass(a.status)}">${a.status.toLowerCase()}</span></td>
+          </tr>`;
+        }).join("");
 
     const patientsBody = document.getElementById("doctor-patients-body");
     patientsBody.innerHTML = patients.length === 0
@@ -159,19 +180,12 @@ async function loadDoctorView() {
   }
 }
 
-async function markCompleted(id) {
-  try {
-    await api(`/appointments/${id}/status`, { method: "PUT", body: { status: "COMPLETED" } });
-    toast("Appointment marked as completed.", "success");
-    loadDoctorView();
-  } catch (err) {
-    toast(err.message, "error");
-  }
-}
-
 async function loadBillingView() {
   try {
-    const billings = await api("/billing");
+    const [billings, unbilled] = await Promise.all([
+      api("/billing"),
+      api("/prescriptions/unbilled")
+    ]);
     const paid = billings.filter(b => b.status === "PAID").length;
     const unpaid = billings.filter(b => b.status === "UNPAID").length;
     document.getElementById("stat-cards").innerHTML = `
@@ -184,12 +198,21 @@ async function loadBillingView() {
         <div class="value">${paid} / ${unpaid}</div><div class="label">Paid / Unpaid</div>
       </div>`;
 
+    const awaitingBody = document.getElementById("awaiting-billing-body");
+    awaitingBody.innerHTML = unbilled.length === 0
+      ? `<tr class="empty-row"><td colspan="4">Nothing waiting to be billed.</td></tr>`
+      : unbilled.map(p => `<tr>
+          <td>Patient #${p.patientId}</td><td>Doctor #${p.doctorId}</td><td>${escapeHtml(p.medicines)}</td>
+          <td><a href="billing.html?prescriptionId=${p.id}&patientId=${p.patientId}" class="btn btn-outline btn-sm">Create Bill</a></td>
+        </tr>`).join("");
+
     const body = document.getElementById("billing-recent-body");
     const recent = [...billings].sort((a, b) => b.id - a.id).slice(0, 8);
     body.innerHTML = recent.length === 0
-      ? `<tr class="empty-row"><td colspan="4">No billing records yet.</td></tr>`
+      ? `<tr class="empty-row"><td colspan="5">No billing records yet.</td></tr>`
       : recent.map(b => `<tr>
           <td>#${b.patientId}</td><td>${formatCurrency(b.amount)}</td><td>${formatDate(b.date)}</td>
+          <td>${b.paymentMethod ? escapeHtml(b.paymentMethod.toLowerCase()) : "—"}</td>
           <td><span class="badge ${statusBadgeClass(b.status)}">${b.status.toLowerCase()}</span></td>
         </tr>`).join("");
   } catch (err) {
