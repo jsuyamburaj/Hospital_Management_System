@@ -27,6 +27,15 @@ const Auth = {
       role: authResponse.role
     }));
   },
+  // Caches the profile photo (and any refreshed name/phone) alongside the
+  // session so the sidebar avatar doesn't flash back to initials on every
+  // page load while the background refresh in renderUserChip() completes.
+  setPhotoCache(photoData) {
+    const user = this.getUser();
+    if (!user) return;
+    user.photoData = photoData;
+    localStorage.setItem("hms_user", JSON.stringify(user));
+  },
   logout() {
     localStorage.removeItem("hms_token");
     localStorage.removeItem("hms_user");
@@ -175,17 +184,32 @@ function renderUserChip() {
   const chip = document.getElementById("user-chip");
   const user = Auth.getUser();
   if (chip && user) {
-    const initials = user.name.split(" ").map(w => w[0]).slice(0, 2).join("").toUpperCase();
-    chip.innerHTML = `
-      <div class="avatar">${initials}</div>
-      <div class="info">
-        <div class="name">${escapeHtml(user.name)}</div>
-        <div class="role">${escapeHtml(user.role.replace("_", " ").toLowerCase())}</div>
-      </div>`;
+    paintUserChip(chip, user);
   }
   document.querySelectorAll(".logout-btn").forEach(btn => {
     btn.addEventListener("click", (e) => { e.preventDefault(); Auth.logout(); });
   });
+
+  // Refresh in the background so a saved profile photo shows up without
+  // needing a fresh login - falls back silently to initials if this fails.
+  if (chip && user) {
+    api("/users/me").then(fresh => {
+      const merged = { ...user, name: fresh.name, phone: fresh.phone, photoData: fresh.photoData };
+      Auth.setPhotoCache(fresh.photoData);
+      paintUserChip(chip, merged);
+    }).catch(() => {});
+  }
+}
+
+function paintUserChip(chip, user) {
+  const initials = user.name.split(" ").map(w => w[0]).slice(0, 2).join("").toUpperCase();
+  const avatarInner = user.photoData ? `<img src="${user.photoData}" alt="">` : initials;
+  chip.innerHTML = `
+    <div class="avatar">${avatarInner}</div>
+    <div class="info">
+      <div class="name">${escapeHtml(user.name)}</div>
+      <div class="role">${escapeHtml(user.role.replace("_", " ").toLowerCase())}</div>
+    </div>`;
 }
 
 function openModal(id) { document.getElementById(id)?.classList.add("open"); }
@@ -346,3 +370,106 @@ function timeAgo(isoString) {
   const days = Math.round(hours / 24);
   return `${days}d ago`;
 }
+
+/* ------------------------ Sortable + paginated tables ------------------------ */
+function attachTableControls(tableId, data, renderRowFn, pageSize = 10) {
+  const table = document.getElementById(tableId);
+  if (!table) return;
+  const tbody = table.querySelector("tbody");
+  let sortKey = null;
+  let sortDir = "asc";
+  let page = 1;
+
+  function currentSlice() {
+    let rows = [...data];
+    if (sortKey) {
+      rows.sort((a, b) => {
+        const av = a[sortKey], bv = b[sortKey];
+        if (av == null) return 1;
+        if (bv == null) return -1;
+        if (typeof av === "number" && typeof bv === "number") return sortDir === "asc" ? av - bv : bv - av;
+        return sortDir === "asc"
+          ? String(av).localeCompare(String(bv))
+          : String(bv).localeCompare(String(av));
+      });
+    }
+    const totalPages = Math.max(1, Math.ceil(rows.length / pageSize));
+    if (page > totalPages) page = totalPages;
+    const start = (page - 1) * pageSize;
+    return { rows: rows.slice(start, start + pageSize), total: rows.length, totalPages };
+  }
+
+  function render() {
+    const { rows, total, totalPages } = currentSlice();
+    tbody.innerHTML = rows.length
+      ? rows.map(renderRowFn).join("")
+      : `<tr class="empty-row"><td colspan="20">No results found.</td></tr>`;
+    renderPagination(total, totalPages);
+  }
+
+  function renderPagination(total, totalPages) {
+    const el = document.getElementById(tableId + "-pagination");
+    if (!el) return;
+    const start = total === 0 ? 0 : (page - 1) * pageSize + 1;
+    const end = Math.min(page * pageSize, total);
+
+    let buttons = "";
+    for (let p = 1; p <= totalPages; p++) {
+      if (p === 1 || p === totalPages || Math.abs(p - page) <= 1) {
+        buttons += `<button class="pagination-btn ${p === page ? "active" : ""}" data-page="${p}">${p}</button>`;
+      } else if (buttons.slice(-3) !== "...") {
+        buttons += `<span class="pagination-btn" style="border:none;cursor:default;">...</span>`;
+      }
+    }
+
+    el.innerHTML = `
+      <span class="pagination-info">Showing ${start}–${end} of ${total}</span>
+      <div class="pagination-controls">
+        <button class="pagination-btn" id="${tableId}-prev" ${page === 1 ? "disabled" : ""} aria-label="Previous page">‹</button>
+        ${buttons}
+        <button class="pagination-btn" id="${tableId}-next" ${page === totalPages ? "disabled" : ""} aria-label="Next page">›</button>
+      </div>`;
+
+    el.querySelectorAll("[data-page]").forEach(btn => {
+      btn.addEventListener("click", () => { page = Number(btn.dataset.page); render(); });
+    });
+    const prevBtn = document.getElementById(tableId + "-prev");
+    const nextBtn = document.getElementById(tableId + "-next");
+    if (prevBtn) prevBtn.addEventListener("click", () => { if (page > 1) { page--; render(); } });
+    if (nextBtn) nextBtn.addEventListener("click", () => { if (page < totalPages) { page++; render(); } });
+  }
+
+  table.querySelectorAll("th.sortable").forEach(th => {
+    th.innerHTML += ` <span class="sort-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></span>`;
+    th.addEventListener("click", () => {
+      const key = th.dataset.sort;
+      if (sortKey === key) {
+        sortDir = sortDir === "asc" ? "desc" : "asc";
+      } else {
+        sortKey = key;
+        sortDir = "asc";
+      }
+      table.querySelectorAll("th.sortable").forEach(h => h.classList.remove("sort-asc", "sort-desc"));
+      th.classList.add(sortDir === "asc" ? "sort-asc" : "sort-desc");
+      page = 1;
+      render();
+    });
+  });
+
+  render();
+  return { refresh: (newData) => { data = newData; render(); } };
+}
+
+document.addEventListener("click", (e) => {
+  const el = e.target.closest(".ripple");
+  if (!el) return;
+  const rect = el.getBoundingClientRect();
+  const size = Math.max(rect.width, rect.height);
+  const dot = document.createElement("span");
+  dot.className = "ripple-dot";
+  dot.style.width = dot.style.height = size + "px";
+  dot.style.left = (e.clientX - rect.left - size / 2) + "px";
+  dot.style.top = (e.clientY - rect.top - size / 2) + "px";
+  el.appendChild(dot);
+  setTimeout(() => dot.remove(), 500);
+});

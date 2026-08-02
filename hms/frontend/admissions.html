@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inpatient/Outpatient — MediCore HMS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="app-shell">
+  <aside class="sidebar">
+    <a href="admin.html" class="brand">
+      <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#1E3A8A" stroke-width="2"><path d="M12 21s-7-4.35-9.5-8.5C.5 8.5 3 4 7 4c2 0 3.5 1 5 3 1.5-2 3-3 5-3 4 0 6.5 4.5 4.5 8.5C19 16.65 12 21 12 21z"/></svg>
+      MediCore
+    </a>
+    <ul class="side-nav">
+      <li><a href="admin.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg> Dashboard</a></li>
+      <li><a href="patients.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg> Patients</a></li>
+      <li><a href="staff-management.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg> Staff</a></li>
+      <li><a href="appointments.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg> Appointments</a></li>
+      <li><a href="reception.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg> Reception</a></li>
+      <li><a href="admissions.html" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg> Inpatient/Outpatient</a></li>
+      <li><a href="pharmacy.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4.5 4.5l15 15M9 3.5a4 4 0 0 1 5.66 0l5.84 5.84a4 4 0 0 1-5.66 5.66L9 9.16A4 4 0 0 1 9 3.5z"/></svg> Pharmacy</a></li>
+      <li><a href="laboratory.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 2v6L4 20a1 1 0 0 0 1 2h14a1 1 0 0 0 1-2L15 8V2"/><path d="M9 2h6M6 15h12"/></svg> Laboratory</a></li>
+      <li><a href="billing.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg> Billing</a></li>
+      <li><a href="reports.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 17V9M13 17V5M8 17v-4"/></svg> Reports</a></li>
+      <li><a href="notifications.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg> Notifications</a></li>
+      <li><a href="profile.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg> Profile</a></li>
+    </ul>
+    <div class="sidebar-foot">
+      <div class="user-chip" id="user-chip"></div>
+      <a href="#" class="btn btn-ghost btn-sm btn-block logout-btn" style="margin-top:8px;justify-content:flex-start;">Log out</a>
+    </div>
+  </aside>
+
+  <div class="main-col">
+    <div class="topbar">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <button class="sidebar-toggle">☰</button>
+        <h1>Inpatient / Outpatient</h1>
+      </div>
+      <button class="dark-toggle" aria-label="Toggle dark mode">🌙</button>
+    </div>
+
+    <div class="page-body">
+      <div class="stat-cards" id="stat-cards">
+        <div class="stat-card blue"><div class="skeleton" style="height:70px;"></div></div>
+        <div class="stat-card green"><div class="skeleton" style="height:70px;"></div></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h2>All records</h2>
+          <div class="toolbar">
+            <select class="select-filter" id="type-filter">
+              <option value="">All types</option>
+              <option value="INPATIENT">Inpatient</option>
+              <option value="OUTPATIENT">Outpatient</option>
+            </select>
+            <button class="btn btn-primary btn-sm" id="add-admission-btn">+ New Record</button>
+          </div>
+        </div>
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead><tr><th>Patient</th><th>Doctor</th><th>Type</th><th>Ward/Room</th><th>Admitted</th><th>Status</th><th></th></tr></thead>
+            <tbody id="admissions-body"><tr><td colspan="7"><div class="skeleton skel-row"></div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="admission-modal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>New Admission Record</h3>
+      <button class="modal-close" data-close-modal="admission-modal">&times;</button>
+    </div>
+    <form id="admission-form">
+      <div class="field" id="f-a-patient">
+        <label for="a-patient">Patient</label>
+        <select id="a-patient"></select>
+      </div>
+      <div class="field" id="f-a-doctor">
+        <label for="a-doctor">Attending doctor</label>
+        <select id="a-doctor"></select>
+      </div>
+      <div class="field" id="f-a-type">
+        <label for="a-type">Type</label>
+        <select id="a-type">
+          <option value="OUTPATIENT">Outpatient</option>
+          <option value="INPATIENT">Inpatient</option>
+        </select>
+      </div>
+      <div class="field-row" id="ward-fields">
+        <div class="field" id="f-a-ward">
+          <label for="a-ward">Ward</label>
+          <input type="text" id="a-ward" placeholder="e.g. General Ward B">
+        </div>
+        <div class="field" id="f-a-room">
+          <label for="a-room">Room number</label>
+          <input type="text" id="a-room" placeholder="e.g. 204">
+        </div>
+      </div>
+      <div class="field" id="f-a-date">
+        <label for="a-date">Date</label>
+        <input type="date" id="a-date">
+      </div>
+      <div class="field" id="f-a-reason">
+        <label for="a-reason">Reason</label>
+        <input type="text" id="a-reason" placeholder="Optional">
+      </div>
+      <button type="submit" class="btn btn-primary btn-block" id="admission-save-btn">Save Record</button>
+    </form>
+  </div>
+</div>
+
+<script src="js/script.js"></script>
+<script>
+const user = Auth.requireRole(["ADMIN"]);
+let allAdmissions = [];
+let allPatients = [];
+let allDoctors = [];
+
+if (user) {
+  renderUserChip();
+  loadNotifBadge();
+  loadAdmissions();
+}
+
+async function loadAdmissions() {
+  try {
+    [allAdmissions, allPatients, allDoctors] = await Promise.all([api("/admissions"), api("/patients"), api("/doctors")]);
+    populateSelects();
+    renderStats();
+    renderAdmissions(allAdmissions);
+  } catch (err) {
+    toast(err.message, "error");
+  }
+}
+
+function populateSelects() {
+  document.getElementById("a-patient").innerHTML = allPatients.map(p => `<option value="${p.id}">${escapeHtml(p.name)}</option>`).join("");
+  document.getElementById("a-doctor").innerHTML = allDoctors.map(d => `<option value="${d.id}">${escapeHtml(d.name)}</option>`).join("");
+}
+
+function renderStats() {
+  const admitted = allAdmissions.filter(a => a.status === "ADMITTED");
+  const inpatients = admitted.filter(a => a.type === "INPATIENT").length;
+  document.getElementById("stat-cards").innerHTML = `
+    <div class="stat-card blue">
+      <div class="top-row"><div class="icon-badge"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg></div></div>
+      <div class="value">${admitted.length}</div><div class="label">Currently Active</div>
+    </div>
+    <div class="stat-card green">
+      <div class="top-row"><div class="icon-badge"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></div></div>
+      <div class="value">${inpatients}</div><div class="label">Inpatient Beds Occupied</div>
+    </div>`;
+}
+
+function renderAdmissions(list) {
+  const body = document.getElementById("admissions-body");
+  if (list.length === 0) {
+    body.innerHTML = `<tr class="empty-row"><td colspan="7">No admission records yet.</td></tr>`;
+    return;
+  }
+  const sorted = [...list].sort((a, b) => b.id - a.id);
+  body.innerHTML = sorted.map(a => {
+    const patient = allPatients.find(p => p.id === a.patientId);
+    const doctor = allDoctors.find(d => d.id === a.doctorId);
+    const wardInfo = a.type === "INPATIENT" ? [a.ward, a.roomNumber].filter(Boolean).join(" / ") || "—" : "—";
+    return `<tr>
+      <td>${patient ? escapeHtml(patient.name) : "Patient #" + a.patientId}</td>
+      <td>${doctor ? escapeHtml(doctor.name) : "Doctor #" + a.doctorId}</td>
+      <td><span class="badge badge-blue">${a.type.toLowerCase()}</span></td>
+      <td>${escapeHtml(wardInfo)}</td>
+      <td>${formatDate(a.admissionDate)}</td>
+      <td><span class="badge ${a.status === 'ADMITTED' ? 'badge-warning' : 'badge-green'}">${a.status.toLowerCase()}</span></td>
+      <td>${a.status === 'ADMITTED' ? `<button class="btn btn-outline btn-sm" onclick="discharge(${a.id})">Discharge</button>` : ""}</td>
+    </tr>`;
+  }).join("");
+}
+
+document.getElementById("type-filter").addEventListener("change", (e) => {
+  const val = e.target.value;
+  renderAdmissions(val ? allAdmissions.filter(a => a.type === val) : allAdmissions);
+});
+
+document.getElementById("a-type").addEventListener("change", (e) => {
+  document.getElementById("ward-fields").style.display = e.target.value === "INPATIENT" ? "grid" : "none";
+});
+
+document.getElementById("add-admission-btn").addEventListener("click", () => {
+  document.getElementById("admission-form").reset();
+  document.getElementById("a-date").value = new Date().toISOString().slice(0, 10);
+  document.getElementById("ward-fields").style.display = "none";
+  clearAllErrors(document.getElementById("admission-form"));
+  openModal("admission-modal");
+});
+
+async function discharge(id) {
+  if (!confirm("Discharge this patient?")) return;
+  try {
+    await api(`/admissions/${id}/discharge`, { method: "PUT" });
+    toast("Patient discharged.", "success");
+    loadAdmissions();
+  } catch (err) {
+    toast(err.message, "error");
+  }
+}
+
+document.getElementById("admission-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const payload = {
+    patientId: Number(document.getElementById("a-patient").value),
+    doctorId: Number(document.getElementById("a-doctor").value),
+    type: document.getElementById("a-type").value,
+    ward: document.getElementById("a-ward").value.trim() || null,
+    roomNumber: document.getElementById("a-room").value.trim() || null,
+    admissionDate: document.getElementById("a-date").value,
+    reason: document.getElementById("a-reason").value.trim() || null
+  };
+
+  const btn = document.getElementById("admission-save-btn");
+  btn.disabled = true;
+  try {
+    await api("/admissions", { method: "POST", body: payload });
+    toast("Admission record created.", "success");
+    closeModal("admission-modal");
+    loadAdmissions();
+  } catch (err) {
+    toast(err.message, "error");
+  } finally {
+    btn.disabled = false;
+  }
+});
+</script>
+</body>
+</html>

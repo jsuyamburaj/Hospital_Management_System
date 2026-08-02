@@ -72,4 +72,11 @@ public class AppointmentController {
                 id, request.getMedicines(), request.getNotes(),
                 principal.getId(), com.hms.entity.Role.valueOf(principal.getRole())));
     }
+
+    // Reception marks a patient as physically arrived for their visit.
+    @PutMapping("/{id}/check-in")
+    @PreAuthorize("hasAnyRole('ADMIN', 'BILLING_STAFF')")
+    public ResponseEntity<Appointment> checkIn(@PathVariable Long id) {
+        return ResponseEntity.ok(appointmentService.checkIn(id));
+    }
 }

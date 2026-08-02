@@ -107,6 +107,13 @@ public class AppointmentService {
         return appointmentRepository.save(existing);
     }
 
+    /** Reception marks a patient as physically arrived for their visit. */
+    public Appointment checkIn(Long id) {
+        Appointment existing = getById(id);
+        existing.setCheckedIn(true);
+        return appointmentRepository.save(existing);
+    }
+
     private void assertDoctorOwnsAppointment(Appointment appointment, Long callingUserId, Role callingRole) {
         if (callingRole == Role.ADMIN) {
             return; // admins can still act as a fallback/override

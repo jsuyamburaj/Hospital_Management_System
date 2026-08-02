@@ -148,3 +148,61 @@ update that constant if you deploy the backend elsewhere.
 - All amounts display in ₹ (Indian Rupees) via the shared `formatCurrency()`
   helper in `js/script.js`. Amounts are stored as plain numbers in the
   database — only the display format changed.
+
+### Theme refresh + dark mode fix
+
+- The palette moved from a generic SaaS blue/green to a clinical teal
+  identity (`--blue: #0e8a83` etc. — the variable names are unchanged in
+  the CSS to avoid a much larger rewrite, only the hex values did).
+- **Fixed a real bug**: the topbar and public nav had a hardcoded light
+  background (`rgba(245,247,250,...)`) instead of a variable, so in dark
+  mode it stayed light while the text turned light too — unreadable.
+  Both now use a `--glass-bg` variable that flips correctly with the theme.
+- `login.html` / `register.html` / `forgot-password.html` are now a single
+  centered card over a teal gradient with a subtle tiled "+" cross pattern
+  and floating blobs, instead of the old split-screen layout.
+
+### Search
+
+- Doctors, Billing Staff, Appointments, and Billing (staff/admin view) all
+  have a live client-side search box now, in addition to Patients' existing
+  one. Appointments and Billing combine search with their status filter.
+
+### Profile photo
+
+- Every role can upload a profile photo from `profile.html` (the small
+  camera icon on the avatar). The image is resized on a `<canvas>` to at
+  most 300×300 before upload, so a multi-MB phone photo doesn't bloat the
+  database — it's stored as a base64 string on the `users` table
+  (`PUT /api/users/me/photo`) and shown everywhere the sidebar avatar
+  appears, across every page.
+
+### New modules (Pharmacy, Laboratory, Reception, Inpatient/Outpatient, Staff Management)
+
+- **Pharmacy** (`pharmacy.html`, admin-only) — medicine inventory with stock,
+  price, expiry, and a low-stock alert. `PUT /api/pharmacy/{id}/adjust-stock`
+  gives a quick +/- without opening the full edit form.
+- **Laboratory** (`laboratory.html`) — doctors order tests, move them through
+  Ordered → In Progress → Completed, and enter a result summary. Patients see
+  their own tests (read-only) and get a notification when results are ready.
+- **Reception** (`reception.html`, admin + billing staff) — today's
+  appointment queue across all doctors, with a one-click Check In. Backed by
+  a new `checkedIn` flag on `Appointment` (`PUT /api/appointments/{id}/check-in`).
+- **Inpatient/Outpatient** (`admissions.html`, admin) — admission records with
+  ward/room for inpatient stays, discharge tracking, and a patient
+  notification on both admission and discharge.
+- **Staff Management** (`staff-management.html`, admin) — a unified directory
+  combining Doctors + Billing Staff with search and tabs; the existing
+  `doctors.html` / `billing-staff.html` pages still handle the actual
+  add/edit/delete and are linked from here.
+
+Sidebars across every existing page were updated to include these — the old
+separate "Doctors" and "Billing Staff" sidebar links were consolidated into
+one "Staff" link pointing at `staff-management.html`.
+
+### Theme note
+
+The CSS was updated in this pass to the Navy Blue / Sky Blue enterprise
+palette (previously teal) discussed separately — see `css/style.css` for the
+full token list. All hardcoded icon colors across every page were updated to
+match.

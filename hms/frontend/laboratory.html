@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Laboratory — MediCore HMS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="app-shell">
+  <aside class="sidebar">
+    <a href="index.html" class="brand" id="brand-link">
+      <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#1E3A8A" stroke-width="2"><path d="M12 21s-7-4.35-9.5-8.5C.5 8.5 3 4 7 4c2 0 3.5 1 5 3 1.5-2 3-3 5-3 4 0 6.5 4.5 4.5 8.5C19 16.65 12 21 12 21z"/></svg>
+      MediCore
+    </a>
+    <ul class="side-nav" id="side-nav"></ul>
+    <div class="sidebar-foot">
+      <div class="user-chip" id="user-chip"></div>
+      <a href="#" class="btn btn-ghost btn-sm btn-block logout-btn" style="margin-top:8px;justify-content:flex-start;">Log out</a>
+    </div>
+  </aside>
+
+  <div class="main-col">
+    <div class="topbar">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <button class="sidebar-toggle">☰</button>
+        <h1>Laboratory</h1>
+      </div>
+      <button class="dark-toggle" aria-label="Toggle dark mode">🌙</button>
+    </div>
+
+    <div class="page-body">
+      <div class="panel">
+        <div class="panel-head">
+          <h2 id="panel-title">Lab tests</h2>
+          <div class="toolbar" id="toolbar">
+            <select class="select-filter" id="status-filter">
+              <option value="">All statuses</option>
+              <option value="ORDERED">Ordered</option>
+              <option value="IN_PROGRESS">In Progress</option>
+              <option value="COMPLETED">Completed</option>
+            </select>
+            <button class="btn btn-primary btn-sm" id="order-test-btn" style="display:none;">+ Order Test</button>
+          </div>
+        </div>
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead><tr><th>Patient</th><th>Doctor</th><th>Test</th><th>Ordered</th><th>Status</th><th id="actions-th"></th></tr></thead>
+            <tbody id="labtests-body"><tr><td colspan="6"><div class="skeleton skel-row"></div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="order-modal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>Order Lab Test</h3>
+      <button class="modal-close" data-close-modal="order-modal">&times;</button>
+    </div>
+    <form id="order-form">
+      <div class="field" id="f-o-patient">
+        <label for="o-patient">Patient</label>
+        <select id="o-patient"></select>
+      </div>
+      <div class="field" id="f-o-test">
+        <label for="o-test">Test name</label>
+        <input type="text" id="o-test" placeholder="e.g. Complete Blood Count">
+        <div class="error-text">Test name is required.</div>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block" id="order-save-btn">Order Test</button>
+    </form>
+  </div>
+</div>
+
+<div class="modal-overlay" id="result-modal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>Enter Result</h3>
+      <button class="modal-close" data-close-modal="result-modal">&times;</button>
+    </div>
+    <form id="result-form">
+      <input type="hidden" id="result-test-id">
+      <div class="field" id="f-result">
+        <label for="result-summary">Result summary</label>
+        <textarea id="result-summary" rows="4" placeholder="Findings, values, and any notes for the patient/doctor"></textarea>
+        <div class="error-text">Please enter the result summary.</div>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block" id="result-save-btn">Mark Completed</button>
+    </form>
+  </div>
+</div>
+
+<script src="js/script.js"></script>
+<script>
+const user = Auth.requireRole(["ADMIN", "DOCTOR", "PATIENT"]);
+let allTests = [];
+let allPatients = [];
+let allDoctors = [];
+let myDoctorId = null;
+const canManage = user && (user.role === "ADMIN" || user.role === "DOCTOR");
+
+if (user) {
+  document.getElementById("brand-link").href = { ADMIN: "admin.html", DOCTOR: "staff.html", PATIENT: "dashboard.html" }[user.role];
+  renderUserChip();
+  loadNotifBadge();
+  buildSidebar();
+  if (canManage) {
+    document.getElementById("order-test-btn").style.display = "inline-flex";
+    document.getElementById("actions-th").textContent = "Actions";
+  } else {
+    document.getElementById("panel-title").textContent = "My lab tests";
+    document.getElementById("toolbar").querySelector(".select-filter").remove();
+  }
+  loadTests();
+}
+
+function buildSidebar() {
+  const nav = document.getElementById("side-nav");
+  const map = {
+    ADMIN: `
+      <li><a href="admin.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg> Dashboard</a></li>
+      <li><a href="patients.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg> Patients</a></li>
+      <li><a href="staff-management.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg> Staff</a></li>
+      <li><a href="appointments.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg> Appointments</a></li>
+      <li><a href="reception.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg> Reception</a></li>
+      <li><a href="admissions.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg> Inpatient/Outpatient</a></li>
+      <li><a href="pharmacy.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4.5 4.5l15 15M9 3.5a4 4 0 0 1 5.66 0l5.84 5.84a4 4 0 0 1-5.66 5.66L9 9.16A4 4 0 0 1 9 3.5z"/></svg> Pharmacy</a></li>
+      <li><a href="laboratory.html" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 2v6L4 20a1 1 0 0 0 1 2h14a1 1 0 0 0 1-2L15 8V2"/><path d="M9 2h6M6 15h12"/></svg> Laboratory</a></li>
+      <li><a href="billing.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg> Billing</a></li>
+      <li><a href="reports.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 17V9M13 17V5M8 17v-4"/></svg> Reports</a></li>
+      <li><a href="notifications.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg> Notifications</a></li>
+      <li><a href="profile.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg> Profile</a></li>`,
+    DOCTOR: `
+      <li><a href="staff.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg> Dashboard</a></li>
+      <li><a href="doctor-appointments.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg> My Appointments</a></li>
+      <li><a href="laboratory.html" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 2v6L4 20a1 1 0 0 0 1 2h14a1 1 0 0 0 1-2L15 8V2"/><path d="M9 2h6M6 15h12"/></svg> Laboratory</a></li>
+      <li><a href="doctor-history.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/><path d="M12 7v5l4 2"/></svg> History</a></li>
+      <li><a href="notifications.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg> Notifications</a></li>
+      <li><a href="profile.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg> Profile</a></li>`,
+    PATIENT: `
+      <li><a href="dashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg> Dashboard</a></li>
+      <li><a href="appointment-book.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg> Book Appointment</a></li>
+      <li><a href="laboratory.html" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 2v6L4 20a1 1 0 0 0 1 2h14a1 1 0 0 0 1-2L15 8V2"/><path d="M9 2h6M6 15h12"/></svg> My Lab Tests</a></li>
+      <li><a href="billing.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg> My Bills</a></li>
+      <li><a href="patient-history.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/><path d="M12 7v5l4 2"/></svg> History</a></li>
+      <li><a href="notifications.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg> Notifications</a></li>
+      <li><a href="profile.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg> Profile</a></li>`
+  };
+  nav.innerHTML = map[user.role] || map.PATIENT;
+}
+
+async function loadTests() {
+  try {
+    if (user.role === "ADMIN") {
+      [allTests, allPatients, allDoctors] = await Promise.all([api("/lab-tests"), api("/patients"), api("/doctors")]);
+    } else if (user.role === "DOCTOR") {
+      const doctor = await api("/doctors/me?userId=" + user.userId);
+      myDoctorId = doctor.id;
+      [allTests, allPatients] = await Promise.all([api(`/lab-tests/doctor/${doctor.id}`), api("/patients")]);
+      allDoctors = [doctor];
+    } else {
+      const patient = await api("/patients/me?userId=" + user.userId);
+      allTests = await api(`/lab-tests/patient/${patient.id}`);
+      allPatients = [patient];
+      allDoctors = await api("/doctors");
+    }
+    if (canManage) populatePatientSelect();
+    renderTests(allTests);
+  } catch (err) {
+    toast(err.message, "error");
+  }
+}
+
+function populatePatientSelect() {
+  document.getElementById("o-patient").innerHTML = allPatients.map(p => `<option value="${p.id}">${escapeHtml(p.name)}</option>`).join("");
+}
+
+function renderTests(list) {
+  const body = document.getElementById("labtests-body");
+  if (list.length === 0) {
+    body.innerHTML = `<tr class="empty-row"><td colspan="6">No lab tests found.</td></tr>`;
+    return;
+  }
+  const sorted = [...list].sort((a, b) => b.id - a.id);
+  body.innerHTML = sorted.map(t => {
+    const patient = allPatients.find(p => p.id === t.patientId);
+    const doctor = allDoctors.find(d => d.id === t.doctorId);
+    let actions = "";
+    if (canManage) {
+      if (t.status === "ORDERED") {
+        actions = `<button class="btn btn-outline btn-sm" onclick="setStatus(${t.id}, 'IN_PROGRESS')">Start</button>`;
+      } else if (t.status === "IN_PROGRESS") {
+        actions = `<button class="btn btn-primary btn-sm" onclick="openResult(${t.id})">Enter Result</button>`;
+      } else if (t.resultSummary) {
+        actions = `<span class="tooltip" data-tooltip="${escapeHtml(t.resultSummary)}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></span>`;
+      }
+    } else if (t.status === "COMPLETED" && t.resultSummary) {
+      actions = `<span class="tooltip" data-tooltip="${escapeHtml(t.resultSummary)}">View result</span>`;
+    }
+    return `<tr>
+      <td>${patient ? escapeHtml(patient.name) : "Patient #" + t.patientId}</td>
+      <td>${doctor ? escapeHtml(doctor.name) : "Doctor #" + t.doctorId}</td>
+      <td>${escapeHtml(t.testName)}</td>
+      <td>${formatDate(t.orderedDate)}</td>
+      <td><span class="badge ${t.status === 'COMPLETED' ? 'badge-green' : (t.status === 'IN_PROGRESS' ? 'badge-warning' : 'badge-blue')}">${t.status.replace('_',' ').toLowerCase()}</span></td>
+      <td>${actions}</td>
+    </tr>`;
+  }).join("");
+}
+
+const statusFilterEl = document.getElementById("status-filter");
+if (statusFilterEl) {
+  statusFilterEl.addEventListener("change", (e) => {
+    const val = e.target.value;
+    renderTests(val ? allTests.filter(t => t.status === val) : allTests);
+  });
+}
+
+const orderBtn = document.getElementById("order-test-btn");
+if (orderBtn) {
+  orderBtn.addEventListener("click", () => {
+    document.getElementById("order-form").reset();
+    clearAllErrors(document.getElementById("order-form"));
+    openModal("order-modal");
+  });
+}
+
+async function setStatus(id, status) {
+  try {
+    await api(`/lab-tests/${id}/status`, { method: "PUT", body: { status } });
+    toast("Test moved to " + status.replace("_", " ").toLowerCase() + ".", "success");
+    loadTests();
+  } catch (err) {
+    toast(err.message, "error");
+  }
+}
+
+function openResult(id) {
+  document.getElementById("result-form").reset();
+  document.getElementById("result-test-id").value = id;
+  clearAllErrors(document.getElementById("result-form"));
+  openModal("result-modal");
+}
+
+const orderForm = document.getElementById("order-form");
+if (orderForm) {
+  orderForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    clearAllErrors(e.target);
+    const testName = document.getElementById("o-test").value.trim();
+    if (!testName) { showFieldError(document.getElementById("f-o-test"), "Test name is required."); return; }
+
+    const payload = {
+      patientId: Number(document.getElementById("o-patient").value),
+      doctorId: myDoctorId || (allDoctors[0] ? allDoctors[0].id : null),
+      testName,
+      orderedDate: new Date().toISOString().slice(0, 10)
+    };
+
+    const btn = document.getElementById("order-save-btn");
+    btn.disabled = true;
+    try {
+      await api("/lab-tests", { method: "POST", body: payload });
+      toast("Lab test ordered.", "success");
+      closeModal("order-modal");
+      loadTests();
+    } catch (err) {
+      toast(err.message, "error");
+    } finally {
+      btn.disabled = false;
+    }
+  });
+}
+
+const resultForm = document.getElementById("result-form");
+if (resultForm) {
+  resultForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    clearAllErrors(e.target);
+    const summary = document.getElementById("result-summary").value.trim();
+    if (!summary) { showFieldError(document.getElementById("f-result"), "Please enter the result summary."); return; }
+
+    const id = document.getElementById("result-test-id").value;
+    const btn = document.getElementById("result-save-btn");
+    btn.disabled = true;
+    try {
+      await api(`/lab-tests/${id}/complete`, { method: "PUT", body: { resultSummary: summary } });
+      toast("Result recorded.", "success");
+      closeModal("result-modal");
+      loadTests();
+    } catch (err) {
+      toast(err.message, "error");
+    } finally {
+      btn.disabled = false;
+    }
+  });
+}
+</script>
+</body>
+</html>

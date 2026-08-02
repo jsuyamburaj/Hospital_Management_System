@@ -11,34 +11,19 @@
 <body>
 
 <div class="auth-shell">
-  <div class="auth-visual">
-    <div class="auth-blob b1"></div>
-    <div class="auth-blob b2"></div>
-    <div class="auth-blob b3"></div>
-    <a href="index.html" class="brand">
-      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M12 21s-7-4.35-9.5-8.5C.5 8.5 3 4 7 4c2 0 3.5 1 5 3 1.5-2 3-3 5-3 4 0 6.5 4.5 4.5 8.5C19 16.65 12 21 12 21z"/></svg>
+  <div class="auth-blob b1"></div>
+  <div class="auth-blob b2"></div>
+  <div class="auth-blob b3"></div>
+
+  <div class="auth-card-wrap">
+    <a href="index.html" class="auth-brand-row">
+      <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#fff" stroke-width="2"><path d="M12 21s-7-4.35-9.5-8.5C.5 8.5 3 4 7 4c2 0 3.5 1 5 3 1.5-2 3-3 5-3 4 0 6.5 4.5 4.5 8.5C19 16.65 12 21 12 21z"/></svg>
       MediCore
     </a>
-    <div>
-      <p class="quote">"Every patient, doctor, and invoice — visible the moment you log in."</p>
-      <svg class="auth-ekg" viewBox="0 0 260 50" preserveAspectRatio="none">
-        <path d="M0 25 L45 25 L58 25 L68 6 L82 44 L92 25 L118 25 L130 12 L142 25 L260 25"/>
-      </svg>
-      <ul class="auth-features">
-        <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg> Role-based dashboards for every team</li>
-        <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg> Real-time appointment &amp; billing status</li>
-        <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg> Secure, encrypted patient records</li>
-      </ul>
-      <div class="auth-stats-row">
-        <div><b>12,480</b><span>Patients</span></div>
-        <div><b>240+</b><span>Doctors</span></div>
-        <div><b>24/7</b><span>Support</span></div>
-      </div>
-      <small style="display:block;margin-top:20px;">Trusted by front desks at 40+ clinics</small>
-    </div>
-  </div>
+    <svg class="auth-ekg-divider" viewBox="0 0 260 50" preserveAspectRatio="none">
+      <path d="M0 25 L45 25 L58 25 L68 6 L82 44 L92 25 L118 25 L130 12 L142 25 L260 25"/>
+    </svg>
 
-  <div class="auth-form-side">
     <div class="auth-card">
       <h1>Welcome back</h1>
       <p class="sub">Log in to reach your dashboard.</p>
@@ -47,7 +32,7 @@
         <div class="field" id="f-email">
           <label for="email">Email</label>
           <div class="input-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z" opacity="0"/><path d="M22 6l-10 7L2 6"/><rect x="2" y="4" width="20" height="16" rx="2"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 6l-10 7L2 6"/><rect x="2" y="4" width="20" height="16" rx="2"/></svg>
             <input type="email" id="email" placeholder="you@example.com" autocomplete="username">
           </div>
           <div class="error-text">Please enter a valid email.</div>
@@ -74,6 +59,12 @@
 
       <p class="form-foot">Don't have an account? <a href="register.html">Create one</a></p>
       <p class="form-foot" style="margin-top:6px;font-size:0.8rem;">Demo admin: admin@hms.com / Admin@123</p>
+    </div>
+
+    <div class="auth-feature-chips">
+      <span>Role-based dashboards</span>
+      <span>Live billing status</span>
+      <span>Encrypted records</span>
     </div>
   </div>
 </div>

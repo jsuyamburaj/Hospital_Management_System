@@ -1,6 +1,7 @@
 package com.hms.controller;
 
 import com.hms.dto.ChangePasswordRequest;
+import com.hms.dto.UpdatePhotoRequest;
 import com.hms.dto.UpdateProfileRequest;
 import com.hms.dto.UserProfileResponse;
 import com.hms.security.UserPrincipal;
@@ -34,5 +35,11 @@ public class UserController {
                                                 @Valid @RequestBody ChangePasswordRequest request) {
         userService.changePassword(principal.getId(), request);
         return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/me/photo")
+    public ResponseEntity<UserProfileResponse> updateMyPhoto(@AuthenticationPrincipal UserPrincipal principal,
+                                                              @Valid @RequestBody UpdatePhotoRequest request) {
+        return ResponseEntity.ok(userService.updatePhoto(principal.getId(), request.getPhotoData()));
     }
 }

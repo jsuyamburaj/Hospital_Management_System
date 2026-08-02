@@ -73,6 +73,13 @@ public class UserService {
         userRepository.save(user);
     }
 
+    public UserProfileResponse updatePhoto(Long userId, String photoData) {
+        User user = getUser(userId);
+        user.setPhotoData(photoData);
+        userRepository.save(user);
+        return toResponse(user);
+    }
+
     private User getUser(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new NoSuchElementException("Account not found"));
@@ -84,6 +91,7 @@ public class UserService {
                 .name(user.getName())
                 .email(user.getEmail())
                 .phone(user.getPhone())
+                .photoData(user.getPhotoData())
                 .role(user.getRole())
                 .build();
     }

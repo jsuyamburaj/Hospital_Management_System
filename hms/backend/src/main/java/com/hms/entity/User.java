@@ -36,6 +36,12 @@ public class User {
 
     private String phone;
 
+    // Profile photo as a base64 data URI (e.g. "data:image/png;base64,...").
+    // Stored as LONGTEXT since base64 images can be large; kept optional.
+    @Lob
+    @Column(columnDefinition = "LONGTEXT")
+    private String photoData;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role;

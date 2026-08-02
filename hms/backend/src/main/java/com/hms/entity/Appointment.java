@@ -39,4 +39,8 @@ public class Appointment {
     private AppointmentStatus status = AppointmentStatus.PENDING;
 
     private String reason;
+
+    // Set true by Reception when the patient physically arrives for the visit
+    @Builder.Default
+    private boolean checkedIn = false;
 }
