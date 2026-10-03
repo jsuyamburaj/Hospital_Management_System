@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>My Dashboard — MediCore HMS</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
 </head>
@@ -87,10 +88,12 @@ if (user) {
 
 async function loadPatientDashboard() {
   try {
+    const doctorsPromise = api("/doctors").catch(() => []);
     const patient = await api("/patients/me?userId=" + user.userId);
-    const [appointments, billings] = await Promise.all([
+    const [appointments, billings, doctors] = await Promise.all([
       api(`/appointments/patient/${patient.id}`),
-      api(`/billing/patient/${patient.id}`)
+      api(`/billing/patient/${patient.id}`),
+      doctorsPromise
     ]);
 
     const unpaidCount = billings.filter(b => b.status === "UNPAID").length;
@@ -107,9 +110,6 @@ async function loadPatientDashboard() {
         <div class="top-row"><div class="icon-badge"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></div></div>
         <div class="value">${unpaidCount}</div><div class="label">Unpaid Bills</div>
       </div>`;
-
-    let doctors = [];
-    try { doctors = await api("/doctors"); } catch {}
 
     const apptBody = document.getElementById("appointments-body");
     apptBody.innerHTML = appointments.length === 0

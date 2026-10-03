@@ -9,23 +9,53 @@
    each HTML file and calls into the helpers below.
    ========================================================================= */
 
-const API_BASE = "http://localhost:8080/api";
+const API_BASE = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
+  ? "http://127.0.0.1:8080/api"
+  : `http://${window.location.hostname || "127.0.0.1"}:8080/api`;
+
+const SESSION_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes inactivity timeout
 
 /* ------------------------------- Session ------------------------------- */
 const Auth = {
-  getToken() { return localStorage.getItem("hms_token"); },
+  getToken() {
+    if (!this.checkSessionActivity()) return null;
+    return sessionStorage.getItem("hms_token");
+  },
   getUser() {
-    const raw = localStorage.getItem("hms_user");
+    if (!this.checkSessionActivity()) return null;
+    const raw = sessionStorage.getItem("hms_user");
     return raw ? JSON.parse(raw) : null;
   },
+  checkSessionActivity() {
+    const token = sessionStorage.getItem("hms_token");
+    if (!token) return false;
+    const lastActive = Number(sessionStorage.getItem("hms_last_active") || 0);
+    if (lastActive && (Date.now() - lastActive > SESSION_TIMEOUT_MS)) {
+      this.clearSession();
+      return false;
+    }
+    return true;
+  },
+  recordActivity() {
+    if (sessionStorage.getItem("hms_token")) {
+      sessionStorage.setItem("hms_last_active", Date.now().toString());
+    }
+  },
   setSession(authResponse) {
-    localStorage.setItem("hms_token", authResponse.token);
-    localStorage.setItem("hms_user", JSON.stringify({
+    sessionStorage.setItem("hms_token", authResponse.token);
+    sessionStorage.setItem("hms_user", JSON.stringify({
       userId: authResponse.userId,
       name: authResponse.name,
       email: authResponse.email,
       role: authResponse.role
     }));
+    sessionStorage.setItem("hms_last_active", Date.now().toString());
+    // Clear any legacy persistent storage so it doesn't linger across browser restarts
+    try {
+      localStorage.removeItem("hms_token");
+      localStorage.removeItem("hms_user");
+      localStorage.removeItem("hms_last_active");
+    } catch (e) {}
   },
   // Caches the profile photo (and any refreshed name/phone) alongside the
   // session so the sidebar avatar doesn't flash back to initials on every
@@ -34,26 +64,38 @@ const Auth = {
     const user = this.getUser();
     if (!user) return;
     user.photoData = photoData;
-    localStorage.setItem("hms_user", JSON.stringify(user));
+    sessionStorage.setItem("hms_user", JSON.stringify(user));
+  },
+  clearSession() {
+    try {
+      sessionStorage.removeItem("hms_token");
+      sessionStorage.removeItem("hms_user");
+      sessionStorage.removeItem("hms_last_active");
+      localStorage.removeItem("hms_token");
+      localStorage.removeItem("hms_user");
+      localStorage.removeItem("hms_last_active");
+    } catch (e) {}
   },
   logout() {
-    localStorage.removeItem("hms_token");
-    localStorage.removeItem("hms_user");
-    window.location.href = "login.html";
+    this.clearSession();
+    window.location.replace("login.html");
   },
-  isLoggedIn() { return !!this.getToken(); },
+  isLoggedIn() {
+    return !!this.getToken();
+  },
   // Redirect to the dashboard that matches the account's role
   redirectToDashboard() {
     const user = this.getUser();
-    if (!user) return (window.location.href = "login.html");
+    if (!user) return window.location.replace("login.html");
     const map = { ADMIN: "admin.html", DOCTOR: "staff.html", BILLING_STAFF: "staff.html", PATIENT: "dashboard.html" };
-    window.location.href = map[user.role] || "dashboard.html";
+    window.location.replace(map[user.role] || "dashboard.html");
   },
   // Call at the top of any protected page. Redirects to login if not
   // authenticated, or to the correct dashboard if the role doesn't match.
   requireRole(allowedRoles) {
     if (!this.isLoggedIn()) {
-      window.location.href = "login.html";
+      if (document.documentElement) document.documentElement.style.display = "none";
+      window.location.replace("login.html");
       return null;
     }
     const user = this.getUser();
@@ -64,6 +106,54 @@ const Auth = {
     return user;
   }
 };
+
+// Activity listeners to refresh active session timestamp on user interaction
+let activityThrottleTimer = null;
+function handleUserActivity() {
+  if (!activityThrottleTimer) {
+    Auth.recordActivity();
+    activityThrottleTimer = setTimeout(() => {
+      activityThrottleTimer = null;
+    }, 10000);
+  }
+}
+window.addEventListener("click", handleUserActivity, { passive: true });
+window.addEventListener("keydown", handleUserActivity, { passive: true });
+window.addEventListener("scroll", handleUserActivity, { passive: true });
+
+// Route guard: Immediately prevent unauthorized access to protected pages
+const PUBLIC_PAGES = new Set([
+  "",
+  "index.html",
+  "about.html",
+  "contact.html",
+  "services.html",
+  "login.html",
+  "register.html",
+  "forgot-password.html"
+]);
+
+function enforcePageGuard() {
+  // Purge any legacy persistent sessions stored in localStorage
+  try {
+    localStorage.removeItem("hms_token");
+    localStorage.removeItem("hms_user");
+    localStorage.removeItem("hms_last_active");
+  } catch (e) {}
+
+  const page = window.location.pathname.split("/").pop() || "";
+  if (!PUBLIC_PAGES.has(page)) {
+    if (!Auth.isLoggedIn()) {
+      if (document.documentElement) document.documentElement.style.display = "none";
+      window.location.replace("login.html");
+      return false;
+    }
+  }
+  return true;
+}
+
+// Enforce guard immediately upon script load
+enforcePageGuard();
 
 /* -------------------------------- API ----------------------------------- */
 async function api(path, { method = "GET", body = null, auth = true } = {}) {
@@ -147,12 +237,28 @@ function clearAllErrors(formEl) {
   formEl.querySelectorAll(".field").forEach(clearFieldError);
 }
 
-/* ------------------------------ UI chrome -------------------------------- */
 function initPublicNav() {
   const toggle = document.querySelector(".nav-toggle");
   const links = document.querySelector(".nav-links");
   if (toggle && links) {
     toggle.addEventListener("click", () => links.classList.toggle("open"));
+  }
+
+  const navActions = document.querySelector(".public-nav .nav-actions");
+  if (navActions && Auth.isLoggedIn()) {
+    const user = Auth.getUser();
+    const map = { ADMIN: "admin.html", DOCTOR: "staff.html", BILLING_STAFF: "staff.html", PATIENT: "dashboard.html" };
+    const dashHref = (user && map[user.role]) || "dashboard.html";
+    navActions.innerHTML = `
+      <a href="${dashHref}" class="btn btn-primary btn-sm">Dashboard</a>
+      <a href="#" class="btn btn-outline btn-sm logout-btn">Log out</a>
+      <button class="nav-toggle" aria-label="Toggle menu">☰</button>
+    `;
+    navActions.querySelector(".logout-btn")?.addEventListener("click", (e) => {
+      e.preventDefault();
+      Auth.logout();
+    });
+    navActions.querySelector(".nav-toggle")?.addEventListener("click", () => links?.classList.toggle("open"));
   }
 }
 

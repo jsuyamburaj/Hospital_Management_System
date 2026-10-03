@@ -1,0 +1,46 @@
+# =========================================================================
+# MediCore HMS — .gitignore
+# =========================================================================
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# Eclipse
+.project
+.classpath
+.settings/
+
+# Maven & Build outputs
+target/
+**/target/
+*.class
+*.jar
+*.war
+*.ear
+
+# Logs
+*.log
+logs/
+
+# OS specific files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Environment & temporary files
+*.tmp
+*.temp
+.env
+.env.local
+
+# Frontend packages (if used in future)
+node_modules/
+dist/
