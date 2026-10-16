@@ -64,6 +64,25 @@
               <input type="date" id="date-input">
               <div class="error-text">Please pick a valid future date.</div>
             </div>
+            <div class="field" id="f-time">
+              <label for="time-select">Time Slot</label>
+              <select id="time-select" required>
+                <option value="">Select a time slot</option>
+                <option value="09:00 AM">09:00 AM - 09:30 AM</option>
+                <option value="09:30 AM">09:30 AM - 10:00 AM</option>
+                <option value="10:00 AM">10:00 AM - 10:30 AM</option>
+                <option value="10:30 AM">10:30 AM - 11:00 AM</option>
+                <option value="11:00 AM">11:00 AM - 11:30 AM</option>
+                <option value="11:30 AM">11:30 AM - 12:00 PM</option>
+                <option value="02:00 PM">02:00 PM - 02:30 PM</option>
+                <option value="02:30 PM">02:30 PM - 03:00 PM</option>
+                <option value="03:00 PM">03:00 PM - 03:30 PM</option>
+                <option value="03:30 PM">03:30 PM - 04:00 PM</option>
+                <option value="04:00 PM">04:00 PM - 04:30 PM</option>
+                <option value="04:30 PM">04:30 PM - 05:00 PM</option>
+              </select>
+              <div class="error-text">Please select a time slot.</div>
+            </div>
             <div class="field" id="f-reason">
               <label for="reason-input">Reason for visit</label>
               <textarea id="reason-input" rows="3" placeholder="Briefly describe your symptoms or reason"></textarea>
@@ -139,15 +158,18 @@ document.getElementById("book-form").addEventListener("submit", async (e) => {
 
   const doctorId = document.getElementById("doctor-select").value;
   const date = document.getElementById("date-input").value;
+  const timeSlot = document.getElementById("time-select").value;
 
   if (!doctorId) { showFieldError(document.getElementById("f-doctor"), "Please choose a doctor."); valid = false; }
   if (!date) { showFieldError(document.getElementById("f-date"), "Please pick a valid future date."); valid = false; }
+  if (!timeSlot) { showFieldError(document.getElementById("f-time"), "Please select a time slot."); valid = false; }
   if (!valid) return;
 
   const payload = {
     patientId: myPatientId,
     doctorId: Number(doctorId),
     date,
+    timeSlot,
     reason: document.getElementById("reason-input").value.trim() || null
   };
 

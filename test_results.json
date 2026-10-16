@@ -1,0 +1,338 @@
+[
+  {
+    "id": "AUTH_INIT",
+    "category": "Setup",
+    "description": "Admin login (admin@hms.com)",
+    "passed": true,
+    "details": "Token received, Role: ADMIN"
+  },
+  {
+    "id": "SETUP_PATIENT",
+    "category": "Setup",
+    "description": "Patient login existing account",
+    "passed": true,
+    "details": "User ID: 4"
+  },
+  {
+    "id": "PATIENT_PROFILE",
+    "category": "Setup",
+    "description": "Retrieve patient profile",
+    "passed": true,
+    "details": "Patient profile ID: 1"
+  },
+  {
+    "id": "SETUP_BILLING",
+    "category": "Setup",
+    "description": "Create billing staff via Admin",
+    "passed": false,
+    "details": "Status: 400, Response: {'timestamp': '2026-10-09T06:40:44.628913Z', 'status': 400, 'message': 'An account with this email already exists'}"
+  },
+  {
+    "id": "ADMIN_CREATE_USER",
+    "category": "Admin Management",
+    "description": "Admin creates user (billing staff)",
+    "passed": true,
+    "details": "Created user ID: 5"
+  },
+  {
+    "id": "ADMIN_DELETE_USER",
+    "category": "Admin Management",
+    "description": "Admin deletes user & user login disabled",
+    "passed": true,
+    "details": "Successfully deleted from system"
+  },
+  {
+    "id": "ADMIN_CREATE_PATIENT",
+    "category": "Admin Management",
+    "description": "Admin creates patient with login account",
+    "passed": true,
+    "details": "Patient ID: 2"
+  },
+  {
+    "id": "ADMIN_DELETE_PATIENT",
+    "category": "Admin Management",
+    "description": "Admin deletes patient record",
+    "passed": true,
+    "details": "Patient record removed"
+  },
+  {
+    "id": "LOGIN_01",
+    "category": "Login",
+    "description": "Login with valid credentials",
+    "passed": true,
+    "details": "Role: ADMIN"
+  },
+  {
+    "id": "LOGIN_02",
+    "category": "Login",
+    "description": "Wrong password",
+    "passed": true,
+    "details": "Status: 401, Msg: Invalid email or password"
+  },
+  {
+    "id": "LOGIN_03",
+    "category": "Login",
+    "description": "Invalid email format ('abc123')",
+    "passed": true,
+    "details": "Server rejected with status 401"
+  },
+  {
+    "id": "LOGIN_04",
+    "category": "Login",
+    "description": "Empty login fields",
+    "passed": true,
+    "details": "Rejected with status 400"
+  },
+  {
+    "id": "LOGIN_05",
+    "category": "Login",
+    "description": "Password visibility toggle",
+    "passed": true,
+    "details": "data-toggle-password attribute verified in DOM & script.js"
+  },
+  {
+    "id": "LOGIN_06",
+    "category": "Login",
+    "description": "Logout session destruction",
+    "passed": true,
+    "details": "Auth.clearSession() removes token and user metadata"
+  },
+  {
+    "id": "LOGIN_07",
+    "category": "Login",
+    "description": "Unauthorized page/endpoint access without login",
+    "passed": true,
+    "details": "Blocked with HTTP 403"
+  },
+  {
+    "id": "PAT_01",
+    "category": "Patients",
+    "description": "Add a new patient",
+    "passed": true,
+    "details": "Patient ID: 3"
+  },
+  {
+    "id": "PAT_02",
+    "category": "Patients",
+    "description": "Missing patient name",
+    "passed": true,
+    "details": "Validation rejected with status 400"
+  },
+  {
+    "id": "PAT_03",
+    "category": "Patients",
+    "description": "Add patient with custom phone/contact",
+    "passed": true,
+    "details": "Status: 200"
+  },
+  {
+    "id": "PAT_04",
+    "category": "Patients",
+    "description": "Search patient by name",
+    "passed": true,
+    "details": "Found results: 1"
+  },
+  {
+    "id": "PAT_05",
+    "category": "Patients",
+    "description": "Edit patient details",
+    "passed": true,
+    "details": "Updated Name: Jane Doe Updated"
+  },
+  {
+    "id": "PAT_06",
+    "category": "Patients",
+    "description": "Delete patient",
+    "passed": true,
+    "details": "Delete status 204, Verify status 404"
+  },
+  {
+    "id": "PAT_07",
+    "category": "Patients",
+    "description": "Duplicate account email rejected",
+    "passed": true,
+    "details": "Duplicate rejected with 400: {'timestamp': '2026-10-09T06:40:49.323908200Z', 'status': 400, 'message': 'An account with this email already exists'}"
+  },
+  {
+    "id": "DOC_01",
+    "category": "Doctors",
+    "description": "Add doctor with valid details",
+    "passed": true,
+    "details": "Doctor ID: 2"
+  },
+  {
+    "id": "DOC_02",
+    "category": "Doctors",
+    "description": "Add doctor without a name",
+    "passed": true,
+    "details": "Rejected with 400"
+  },
+  {
+    "id": "DOC_03",
+    "category": "Doctors",
+    "description": "Search and list doctors",
+    "passed": true,
+    "details": "Total doctors: 2"
+  },
+  {
+    "id": "DOC_04",
+    "category": "Doctors",
+    "description": "Update doctor specialization/details",
+    "passed": true,
+    "details": "Spec: Interventional Cardiology"
+  },
+  {
+    "id": "DOC_06",
+    "category": "Doctors",
+    "description": "Enter invalid doctor contact / empty details",
+    "passed": true,
+    "details": "Status: 400"
+  },
+  {
+    "id": "APT_01",
+    "category": "Appointments",
+    "description": "Book appointment with valid details",
+    "passed": true,
+    "details": "Appointment ID: 2, Status: PENDING"
+  },
+  {
+    "id": "DOC_05",
+    "category": "Doctors",
+    "description": "Assign appointment to doctor",
+    "passed": true,
+    "details": "Linked Doctor ID: 2"
+  },
+  {
+    "id": "APT_02",
+    "category": "Appointments",
+    "description": "Book without selecting patient (UI validation & API handling)",
+    "passed": true,
+    "details": "Client enforces required patientId/doctor selection"
+  },
+  {
+    "id": "APT_03",
+    "category": "Appointments",
+    "description": "Select doctor and date",
+    "passed": true,
+    "details": "Status: 200, ID: 3"
+  },
+  {
+    "id": "APT_04",
+    "category": "Appointments",
+    "description": "Doctor schedule appointment slot management",
+    "passed": true,
+    "details": "Appointments are stored with PENDING status for doctor approval"
+  },
+  {
+    "id": "APT_05",
+    "category": "Appointments",
+    "description": "Past appointment date restriction",
+    "passed": true,
+    "details": "dateInput.min restricted to current date in appointment-book.html"
+  },
+  {
+    "id": "APT_06",
+    "category": "Appointments",
+    "description": "Cancel / reject appointment",
+    "passed": true,
+    "details": "Updated Status: REJECTED"
+  },
+  {
+    "id": "APT_07",
+    "category": "Appointments",
+    "description": "Data persistence verification",
+    "passed": true,
+    "details": "Persisted in patient's appointment list"
+  },
+  {
+    "id": "BILL_01",
+    "category": "Billing",
+    "description": "Generate a bill by billing staff",
+    "passed": false,
+    "details": "Bill ID: None, Amount: None"
+  },
+  {
+    "id": "BILL_02",
+    "category": "Billing",
+    "description": "Zero or negative charges rejected",
+    "passed": true,
+    "details": "Form validation (amount <= 0) blocks invalid amounts"
+  },
+  {
+    "id": "BILL_03",
+    "category": "Billing",
+    "description": "Calculate total bill for patient",
+    "passed": true,
+    "details": "Patient total across 2 bills: INR 1525.0"
+  },
+  {
+    "id": "BILL_04",
+    "category": "Billing",
+    "description": "Record offline payment",
+    "passed": false,
+    "details": "Skipped"
+  },
+  {
+    "id": "BILL_05",
+    "category": "Billing",
+    "description": "Online payment test",
+    "passed": false,
+    "details": "Failed to create second bill"
+  },
+  {
+    "id": "BILL_06",
+    "category": "Billing",
+    "description": "Generate bill for invalid patient ID handling",
+    "passed": true,
+    "details": "API handled with response code: 403"
+  },
+  {
+    "id": "SEC_01",
+    "category": "Security",
+    "description": "Patient tries accessing admin endpoint (/api/admin/dashboard)",
+    "passed": true,
+    "details": "Access Forbidden (HTTP 403)"
+  },
+  {
+    "id": "SEC_02",
+    "category": "Security",
+    "description": "Billing staff tries accessing admin endpoint",
+    "passed": true,
+    "details": "Access Forbidden (HTTP 403)"
+  },
+  {
+    "id": "SEC_03",
+    "category": "Security",
+    "description": "SQL Injection in patient search (' OR '1'='1)",
+    "passed": false,
+    "details": "JPA parameterization safely handled injection string without SQL error"
+  },
+  {
+    "id": "SEC_04",
+    "category": "Security",
+    "description": "SQL Injection in login credentials",
+    "passed": true,
+    "details": "Safely rejected with BadCredentialsException (HTTP 401)"
+  },
+  {
+    "id": "SEC_05",
+    "category": "Security",
+    "description": "XSS payload stored and sanitized",
+    "passed": true,
+    "details": "escapeHtml() handles rendering safely on all frontend pages"
+  },
+  {
+    "id": "SEC_06",
+    "category": "Security",
+    "description": "Unauthorized user cannot pay online",
+    "passed": false,
+    "details": "Blocked with HTTP 500"
+  },
+  {
+    "id": "SEC_07",
+    "category": "Security",
+    "description": "Password hash not exposed in /api/users/me",
+    "passed": true,
+    "details": "Profile returns only safe fields (name, email, role, phone)"
+  }
+]

@@ -40,6 +40,9 @@ public class Appointment {
 
     private String reason;
 
+    // Specific time slot (e.g. "10:00 AM", "02:30 PM")
+    private String timeSlot;
+
     // Set true by Reception when the patient physically arrives for the visit
     @Builder.Default
     private boolean checkedIn = false;

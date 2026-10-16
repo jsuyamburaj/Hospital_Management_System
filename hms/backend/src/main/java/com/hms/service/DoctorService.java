@@ -87,10 +87,14 @@ public class DoctorService {
         return doctorRepository.save(existing);
     }
 
+    @Transactional
     public void delete(Long id) {
-        if (!doctorRepository.existsById(id)) {
-            throw new NoSuchElementException("Doctor not found with id: " + id);
-        }
+        Doctor doctor = doctorRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Doctor not found with id: " + id));
+        Long userId = doctor.getUserId();
         doctorRepository.deleteById(id);
+        if (userId != null && userRepository.existsById(userId)) {
+            userRepository.deleteById(userId);
+        }
     }
 }

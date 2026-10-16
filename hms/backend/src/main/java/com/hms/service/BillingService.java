@@ -37,6 +37,16 @@ public class BillingService {
 
     @Transactional
     public Billing create(Billing billing) {
+        if (billing.getPatientId() == null || !patientRepository.existsById(billing.getPatientId())) {
+            throw new NoSuchElementException("Cannot generate bill for non-existent patient ID: " + billing.getPatientId());
+        }
+        if (billing.getAmount() == null || billing.getAmount() <= 0) {
+            throw new IllegalArgumentException("Bill amount must be greater than zero.");
+        }
+        if (billing.getDate() == null) {
+            billing.setDate(java.time.LocalDate.now());
+        }
+
         Billing saved = billingRepository.save(billing);
 
         if (billing.getPrescriptionId() != null) {
@@ -54,10 +64,21 @@ public class BillingService {
 
     public Billing update(Long id, Billing updated) {
         Billing existing = getById(id);
-        existing.setAmount(updated.getAmount());
-        existing.setStatus(updated.getStatus());
-        existing.setDate(updated.getDate());
-        existing.setDescription(updated.getDescription());
+        if (updated.getAmount() != null) {
+            if (updated.getAmount() <= 0) {
+                throw new IllegalArgumentException("Bill amount must be greater than zero.");
+            }
+            existing.setAmount(updated.getAmount());
+        }
+        if (updated.getStatus() != null) {
+            existing.setStatus(updated.getStatus());
+        }
+        if (updated.getDate() != null) {
+            existing.setDate(updated.getDate());
+        }
+        if (updated.getDescription() != null) {
+            existing.setDescription(updated.getDescription());
+        }
         if (updated.getPaymentMethod() != null) {
             existing.setPaymentMethod(updated.getPaymentMethod());
         }

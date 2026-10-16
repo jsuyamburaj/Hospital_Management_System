@@ -13,6 +13,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -46,13 +47,34 @@ public class AppointmentService {
     // Patient books a new appointment request - notifies the assigned doctor
     @Transactional
     public Appointment book(Appointment appointment) {
+        if (appointment.getDate() == null) {
+            throw new IllegalArgumentException("Appointment date is required.");
+        }
+        if (appointment.getDate().isBefore(LocalDate.now())) {
+            throw new IllegalArgumentException("Cannot book an appointment for a past date.");
+        }
+        if (appointment.getDoctorId() == null || !doctorRepository.existsById(appointment.getDoctorId())) {
+            throw new IllegalArgumentException("Selected doctor does not exist.");
+        }
+        if (appointment.getPatientId() == null || !patientRepository.existsById(appointment.getPatientId())) {
+            throw new IllegalArgumentException("Patient profile not found.");
+        }
+        if (appointment.getTimeSlot() != null && !appointment.getTimeSlot().isBlank()) {
+            boolean conflict = appointmentRepository.existsByDoctorIdAndDateAndTimeSlotAndStatusNot(
+                    appointment.getDoctorId(), appointment.getDate(), appointment.getTimeSlot(), AppointmentStatus.REJECTED);
+            if (conflict) {
+                throw new IllegalArgumentException("The selected doctor already has a booked appointment at " + appointment.getTimeSlot() + " on this date.");
+            }
+        }
+
         appointment.setStatus(AppointmentStatus.PENDING);
         Appointment saved = appointmentRepository.save(appointment);
 
         doctorRepository.findById(appointment.getDoctorId()).ifPresent(doctor -> {
             if (doctor.getUserId() != null) {
+                String slotInfo = saved.getTimeSlot() != null ? " (" + saved.getTimeSlot() + ")" : "";
                 notificationService.notifyUser(doctor.getUserId(), "APPOINTMENT_REQUEST",
-                        "New appointment request for " + saved.getDate(), saved.getId());
+                        "New appointment request for " + saved.getDate() + slotInfo, saved.getId());
             }
         });
         return saved;
@@ -101,6 +123,9 @@ public class AppointmentService {
         existing.setDate(updated.getDate());
         existing.setDoctorId(updated.getDoctorId());
         existing.setReason(updated.getReason());
+        if (updated.getTimeSlot() != null) {
+            existing.setTimeSlot(updated.getTimeSlot());
+        }
         if (updated.getStatus() != null) {
             existing.setStatus(updated.getStatus());
         }

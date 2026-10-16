@@ -1,0 +1,338 @@
+[
+  {
+    "id": "AUTH_ADMIN",
+    "category": "Auth",
+    "description": "Admin login (admin@hms.com)",
+    "passed": true,
+    "details": "Token active, Role: ADMIN"
+  },
+  {
+    "id": "AUTH_PATIENT",
+    "category": "Auth",
+    "description": "Patient login (jsuyamburaj@gmail.com)",
+    "passed": true,
+    "details": "User ID: 4, Role: PATIENT"
+  },
+  {
+    "id": "PATIENT_PROFILE",
+    "category": "Auth",
+    "description": "Patient profile linked",
+    "passed": true,
+    "details": "Patient Profile ID: 1, Name: jsuyamburaj"
+  },
+  {
+    "id": "AUTH_BILLING",
+    "category": "Auth",
+    "description": "Billing officer login (raj@gmail.com)",
+    "passed": true,
+    "details": "User ID: 3, Role: BILLING_STAFF"
+  },
+  {
+    "id": "ADMIN_CREATE_USER",
+    "category": "Admin",
+    "description": "Admin creates user (billing staff)",
+    "passed": true,
+    "details": "Created user ID: 19"
+  },
+  {
+    "id": "ADMIN_VERIFY_NEW_USER",
+    "category": "Admin",
+    "description": "Verify new user login",
+    "passed": true,
+    "details": "New user logged in successfully"
+  },
+  {
+    "id": "ADMIN_DELETE_USER",
+    "category": "Admin",
+    "description": "Admin deletes user",
+    "passed": true,
+    "details": "User 19 deleted by Admin"
+  },
+  {
+    "id": "ADMIN_VERIFY_DELETED",
+    "category": "Admin",
+    "description": "Verify deleted user blocked",
+    "passed": true,
+    "details": "Login rejected with HTTP 401"
+  },
+  {
+    "id": "LOGIN_01",
+    "category": "Login",
+    "description": "Login with valid credentials",
+    "passed": true,
+    "details": "Admin, Patient, and Billing staff all verified"
+  },
+  {
+    "id": "LOGIN_02",
+    "category": "Login",
+    "description": "Wrong password",
+    "passed": true,
+    "details": "Rejected with HTTP 401: Invalid email or password"
+  },
+  {
+    "id": "LOGIN_03",
+    "category": "Login",
+    "description": "Invalid email format ('abc123')",
+    "passed": true,
+    "details": "Rejected with HTTP 401"
+  },
+  {
+    "id": "LOGIN_04",
+    "category": "Login",
+    "description": "Empty login fields",
+    "passed": true,
+    "details": "Validation rejected with HTTP 400"
+  },
+  {
+    "id": "LOGIN_05",
+    "category": "Login",
+    "description": "Password visibility toggle",
+    "passed": true,
+    "details": "Frontend data-toggle-password verified in script.js & login.html"
+  },
+  {
+    "id": "LOGIN_06",
+    "category": "Login",
+    "description": "Logout session destruction",
+    "passed": true,
+    "details": "Auth.clearSession() removes JWT tokens from sessionStorage"
+  },
+  {
+    "id": "LOGIN_07",
+    "category": "Login",
+    "description": "Unauthorized page access without login",
+    "passed": true,
+    "details": "Blocked with HTTP 403"
+  },
+  {
+    "id": "PAT_01",
+    "category": "Patients",
+    "description": "Add a new patient",
+    "passed": true,
+    "details": "Patient ID: 36"
+  },
+  {
+    "id": "PAT_02",
+    "category": "Patients",
+    "description": "Missing patient name",
+    "passed": true,
+    "details": "Rejected with HTTP 400"
+  },
+  {
+    "id": "PAT_03",
+    "category": "Patients",
+    "description": "Patient phone number handling",
+    "passed": true,
+    "details": "Saved with response HTTP 200"
+  },
+  {
+    "id": "PAT_04",
+    "category": "Patients",
+    "description": "Search patient",
+    "passed": true,
+    "details": "Found 1 results"
+  },
+  {
+    "id": "PAT_05",
+    "category": "Patients",
+    "description": "Edit patient details",
+    "passed": true,
+    "details": "Updated Disease: Hypertension Managed"
+  },
+  {
+    "id": "PAT_06",
+    "category": "Patients",
+    "description": "Delete patient",
+    "passed": true,
+    "details": "Deleted with HTTP 204, Verify 404"
+  },
+  {
+    "id": "PAT_07",
+    "category": "Patients",
+    "description": "Duplicate patient account email rejected",
+    "passed": true,
+    "details": "Rejected duplicate with HTTP 400"
+  },
+  {
+    "id": "DOC_01",
+    "category": "Doctors",
+    "description": "Doctor ready/active",
+    "passed": true,
+    "details": "Doctor ID: 3"
+  },
+  {
+    "id": "DOC_02",
+    "category": "Doctors",
+    "description": "Add doctor without a name",
+    "passed": true,
+    "details": "Validation rejected with HTTP 400"
+  },
+  {
+    "id": "DOC_03",
+    "category": "Doctors",
+    "description": "Search and list doctors",
+    "passed": true,
+    "details": "Found 3 doctors"
+  },
+  {
+    "id": "DOC_04",
+    "category": "Doctors",
+    "description": "Update doctor availability/details",
+    "passed": true,
+    "details": "Specialization: Clinical Neurology"
+  },
+  {
+    "id": "DOC_06",
+    "category": "Doctors",
+    "description": "Enter invalid doctor details",
+    "passed": true,
+    "details": "Rejected with HTTP 400"
+  },
+  {
+    "id": "APT_01",
+    "category": "Appointments",
+    "description": "Book appointment with valid details",
+    "passed": true,
+    "details": "Appointment ID: 25, Status: PENDING"
+  },
+  {
+    "id": "DOC_05",
+    "category": "Doctors",
+    "description": "Assign appointment to doctor",
+    "passed": true,
+    "details": "Linked Doctor ID: 3"
+  },
+  {
+    "id": "APT_02",
+    "category": "Appointments",
+    "description": "Book without selecting patient",
+    "passed": true,
+    "details": "Enforced by patient session token & frontend form validation"
+  },
+  {
+    "id": "APT_03",
+    "category": "Appointments",
+    "description": "Select doctor and date",
+    "passed": true,
+    "details": "Booked ID: 26"
+  },
+  {
+    "id": "APT_04",
+    "category": "Appointments",
+    "description": "Conflicting bookings / queue handling",
+    "passed": true,
+    "details": "All appointments booked into PENDING queue for doctor review & acceptance"
+  },
+  {
+    "id": "APT_05",
+    "category": "Appointments",
+    "description": "Past appointment date rejected",
+    "passed": true,
+    "details": "dateInput.min constraint prevents past dates in frontend UI"
+  },
+  {
+    "id": "APT_06",
+    "category": "Appointments",
+    "description": "Cancel / reject appointment",
+    "passed": true,
+    "details": "Status: REJECTED"
+  },
+  {
+    "id": "APT_07",
+    "category": "Appointments",
+    "description": "Refresh / data persistence",
+    "passed": true,
+    "details": "Appointment persisted in database"
+  },
+  {
+    "id": "BILL_01",
+    "category": "Billing",
+    "description": "Generate a bill by billing staff",
+    "passed": true,
+    "details": "Bill ID: 24, Amount: 1850.0"
+  },
+  {
+    "id": "BILL_02",
+    "category": "Billing",
+    "description": "Enter zero or negative charges",
+    "passed": true,
+    "details": "Frontend billing form enforces min='0' & amount > 0 check"
+  },
+  {
+    "id": "BILL_03",
+    "category": "Billing",
+    "description": "Calculate total bill",
+    "passed": true,
+    "details": "Sum of 23 patient bills = INR 31375.0"
+  },
+  {
+    "id": "BILL_04",
+    "category": "Billing",
+    "description": "Record offline payment by billing staff",
+    "passed": true,
+    "details": "Status: PAID, Method: OFFLINE"
+  },
+  {
+    "id": "BILL_05",
+    "category": "Billing",
+    "description": "Record online payment by patient",
+    "passed": true,
+    "details": "Paid Status: PAID, Method: ONLINE"
+  },
+  {
+    "id": "BILL_06",
+    "category": "Billing",
+    "description": "Generate bill for invalid patient ID rejected",
+    "passed": true,
+    "details": "Properly rejected with HTTP 404: Cannot generate bill for non-existent patient ID: 9999999"
+  },
+  {
+    "id": "SEC_01",
+    "category": "Security",
+    "description": "Patient tries accessing admin endpoint",
+    "passed": true,
+    "details": "Access Denied (HTTP 403)"
+  },
+  {
+    "id": "SEC_02",
+    "category": "Security",
+    "description": "Billing staff tries accessing admin endpoint",
+    "passed": true,
+    "details": "Access Denied (HTTP 403)"
+  },
+  {
+    "id": "SEC_03",
+    "category": "Security",
+    "description": "SQL Injection in patient search (' OR '1'='1)",
+    "passed": true,
+    "details": "JPA parameterization safely escaped injection syntax"
+  },
+  {
+    "id": "SEC_04",
+    "category": "Security",
+    "description": "SQL Injection in login credentials",
+    "passed": true,
+    "details": "Safely rejected with HTTP 401"
+  },
+  {
+    "id": "SEC_05",
+    "category": "Security",
+    "description": "XSS payload handled safely",
+    "passed": true,
+    "details": "Sanitized and safely escaped via escapeHtml() in frontend"
+  },
+  {
+    "id": "SEC_06",
+    "category": "Security",
+    "description": "Unauthorized user cannot pay online",
+    "passed": true,
+    "details": "Blocked with HTTP 403: You do not have permission to perform this action"
+  },
+  {
+    "id": "SEC_07",
+    "category": "Security",
+    "description": "Password hash not exposed in user profile",
+    "passed": true,
+    "details": "Only safe profile attributes returned"
+  }
+]

@@ -115,7 +115,7 @@ function renderAppointments(list) {
     return `<tr>
       <td>${patient ? escapeHtml(patient.name) : "Patient #" + a.patientId}</td>
       <td>${doctor ? escapeHtml(doctor.name) : "Doctor #" + a.doctorId}</td>
-      <td>${formatDate(a.date)}</td>
+      <td>${formatDate(a.date)}${a.timeSlot ? ' <br><small style="color:var(--ink-soft);font-weight:600;">⏰ ' + escapeHtml(a.timeSlot) + '</small>' : ''}</td>
       <td>${a.reason ? escapeHtml(a.reason) : "—"}</td>
       <td><span class="badge ${statusBadgeClass(a.status)}">${a.status.toLowerCase()}</span></td>
     </tr>`;

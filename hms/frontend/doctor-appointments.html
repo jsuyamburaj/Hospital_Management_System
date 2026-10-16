@@ -138,7 +138,7 @@ function render() {
         const p = findPatient(a.patientId);
         return `<tr>
           <td>${p ? escapeHtml(p.name) : "Patient #" + a.patientId}</td>
-          <td>${formatDate(a.date)}</td>
+          <td>${formatDate(a.date)}${a.timeSlot ? ' <br><small style="color:var(--ink-soft);font-weight:600;">⏰ ' + escapeHtml(a.timeSlot) + '</small>' : ''}</td>
           <td>${a.reason ? escapeHtml(a.reason) : "—"}</td>
           <td>
             <div class="row-actions">
@@ -156,7 +156,7 @@ function render() {
         const p = findPatient(a.patientId);
         return `<tr>
           <td>${p ? escapeHtml(p.name) : "Patient #" + a.patientId}</td>
-          <td>${formatDate(a.date)}</td>
+          <td>${formatDate(a.date)}${a.timeSlot ? ' <br><small style="color:var(--ink-soft);font-weight:600;">⏰ ' + escapeHtml(a.timeSlot) + '</small>' : ''}</td>
           <td>${a.reason ? escapeHtml(a.reason) : "—"}</td>
           <td><button class="btn btn-outline btn-sm" onclick="openComplete(${a.id})">Complete &amp; Prescribe</button></td>
         </tr>`;
